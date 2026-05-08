@@ -9,13 +9,14 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications, figures, disciplines] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
     fetch('data/applications.json').then((r) => r.json()),
     fetch('data/figures.json').then((r) => r.json()),
     fetch('data/disciplines.json').then((r) => r.json()),
+    fetch('data/diagnose.json').then((r) => r.json()),
   ]);
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
@@ -23,6 +24,7 @@ async function loadData() {
   state.applications = applications;
   state.figures = figures;
   state.disciplines = disciplines;
+  state.diagnose = diagnose;
 }
 
 function setupTabs() {
@@ -838,6 +840,154 @@ function setupSciStatesTable(trigrams) {
   });
 }
 
+// ============================================================
+// Diagnose wizard
+// ============================================================
+function setupDiagnose(diagnose, hexagrams, worldview) {
+  const card = document.getElementById('diagnose-card');
+  const intro = document.getElementById('diagnose-intro');
+  const bar = document.querySelector('#diagnose-progress .diag-progress__bar');
+  if (!card) return;
+  if (intro && diagnose.intro) intro.innerHTML = diagnose.intro.replace('占断ではありません', '<strong>占断ではありません</strong>');
+
+  const questions = diagnose.questions;
+  const answers = []; // selected option objects
+  let step = 0;
+
+  const render = () => {
+    card.innerHTML = '';
+    if (bar) bar.style.width = `${(step / questions.length) * 100}%`;
+
+    if (step >= questions.length) {
+      renderResult();
+      if (bar) bar.style.width = '100%';
+      return;
+    }
+    const q = questions[step];
+    const stepEl = document.createElement('div');
+    stepEl.className = 'step';
+    stepEl.textContent = `質問 ${step + 1} / ${questions.length}`;
+    card.appendChild(stepEl);
+
+    const promptEl = document.createElement('p');
+    promptEl.className = 'prompt';
+    promptEl.textContent = q.prompt;
+    card.appendChild(promptEl);
+
+    const opts = document.createElement('div');
+    opts.className = 'diag-options';
+    q.options.forEach((opt) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'diag-option';
+      btn.textContent = opt.label;
+      btn.addEventListener('click', () => {
+        answers.push(opt);
+        step += 1;
+        render();
+      });
+      opts.appendChild(btn);
+    });
+    card.appendChild(opts);
+
+    if (step > 0) {
+      const back = document.createElement('button');
+      back.type = 'button';
+      back.className = 'btn';
+      back.textContent = '← 前の質問';
+      back.style.alignSelf = 'flex-start';
+      back.addEventListener('click', () => {
+        step -= 1;
+        answers.pop();
+        render();
+      });
+      card.appendChild(back);
+    }
+  };
+
+  const renderResult = () => {
+    const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+    const wvById  = Object.fromEntries(worldview.map((p) => [p.id, p]));
+
+    // Aggregate KW counts
+    const kwCount = new Map();
+    const principleCount = new Map();
+    const userQuestions = [];
+    answers.forEach((a) => {
+      (a.kw || []).forEach((k) => kwCount.set(k, (kwCount.get(k) || 0) + 1));
+      (a.principles || []).forEach((p) => principleCount.set(p, (principleCount.get(p) || 0) + 1));
+      if (a.question) userQuestions.push(a.question);
+    });
+    const topHex = [...kwCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+    const topPrinciples = [...principleCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+    card.innerHTML = '';
+    const wrap = document.createElement('div');
+    wrap.className = 'diag-result';
+
+    wrap.innerHTML = `
+      <p class="muted" style="margin: 0;">あなたの回答から導かれる候補です。決定論ではなく、考える鏡として使ってください。</p>
+      <div>
+        <h3>関連する卦 (上位 ${topHex.length})</h3>
+        <div class="diag-result__hex">${topHex.map(([kw, score]) => {
+          const h = hexByKw[kw];
+          return `<a href="#hexagrams" class="item" data-jump-kw="${kw}">
+            <span class="sym">${h.symbol}</span>
+            <span>
+              <span class="name">${h.name_zh} <small style="color:var(--ink-3);font-weight:normal;">${h.name_en}</small></span><br/>
+              <span class="meta">KW#${h.kw} ・ ${h.summary}</span>
+            </span>
+            <span class="score">×${score}</span>
+          </a>`;
+        }).join('')}</div>
+      </div>
+      <div>
+        <h3>関連する原理</h3>
+        <div class="diag-result__principles">${topPrinciples.map(([id, score]) => {
+          const p = wvById[id]; if (!p) return '';
+          return `<span class="chip" title="${p.concept}">${p.name_zh} ×${score}</span>`;
+        }).join('')}</div>
+      </div>
+      <div>
+        <h3>自分に投げかけたい問い</h3>
+        <ul class="diag-result__questions">${userQuestions.map((q) => `<li>${q}</li>`).join('')}</ul>
+      </div>
+      <div class="diag-result__actions">
+        <button type="button" class="btn" id="diag-restart">↺ もう一度やる</button>
+        <button type="button" class="btn" id="diag-journal">📖 これをジャーナルに残す</button>
+      </div>
+    `;
+    card.appendChild(wrap);
+
+    document.getElementById('diag-restart').addEventListener('click', () => {
+      answers.length = 0; step = 0; render();
+    });
+    document.getElementById('diag-journal').addEventListener('click', () => {
+      // Save snapshot to localStorage; the actual journal UI is implemented separately (#25)
+      const snap = {
+        ts: Date.now(),
+        type: 'diagnose',
+        topHex: topHex.map(([k]) => k),
+        topPrinciples: topPrinciples.map(([id]) => id),
+        userQuestions,
+        answers: answers.map((a, i) => ({ q: questions[i].id, label: a.label })),
+      };
+      try {
+        const list = JSON.parse(localStorage.getItem('eki:journal') || '[]');
+        list.unshift(snap);
+        localStorage.setItem('eki:journal', JSON.stringify(list));
+        const btn = document.getElementById('diag-journal');
+        btn.textContent = '✓ 保存しました';
+        btn.disabled = true;
+      } catch (e) {
+        alert('localStorage への保存に失敗しました: ' + e.message);
+      }
+    });
+  };
+
+  render();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -849,6 +999,7 @@ async function main() {
     setupApplications(state.applications, state.hexagrams, state.worldview);
     setupLegacy(state.figures, state.disciplines, state.hexagrams, state.worldview);
     setupScience(state.trigrams, state.hexagrams);
+    setupDiagnose(state.diagnose, state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);

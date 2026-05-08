@@ -21,6 +21,7 @@
       <button class="tab" role="tab" aria-selected="false" data-target="yinyang">陰陽</button>
       <button class="tab" role="tab" aria-selected="false" data-target="trigrams">八卦</button>
       <button class="tab" role="tab" aria-selected="false" data-target="hexagrams">六十四卦</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="diagnose">自己診断</button>
       <button class="tab" role="tab" aria-selected="false" data-target="worldview">見方</button>
       <button class="tab" role="tab" aria-selected="false" data-target="applications">応用</button>
       <button class="tab" role="tab" aria-selected="false" data-target="legacy">影響</button>
@@ -208,6 +209,20 @@
         <p id="hex-detail-summary" style="margin: 12px 0 0; color: var(--ink-2);"></p>
       </article>
     </section>
+    <section id="diagnose" class="section" role="tabpanel" aria-label="自己診断">
+      <h2>自己診断ウィザード ─ あなたの今を易のフレームで読む</h2>
+      <p class="lead" id="diagnose-intro">
+        6 つの問いに答えると、関連する卦・原理・問いのセットが提示されます。
+        <strong>占断ではありません</strong>。あなたの状況を易のフレームで再記述するための『鏡』です。
+      </p>
+
+      <div id="diagnose-progress" class="diag-progress" aria-hidden="true">
+        <div class="diag-progress__bar"></div>
+      </div>
+
+      <article id="diagnose-card" class="card diag-card"></article>
+    </section>
+
     <section id="worldview" class="section" role="tabpanel" aria-label="見方">
       <h2>易学的な見方 ─ 9 つの思考の型</h2>
       <p class="lead">
