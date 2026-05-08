@@ -147,6 +147,33 @@ UI では `loadData` 時に KW で結合して `hexagrams[i].deep` として参�
 - `tradition`   ─ 伝統的に帰属されているが現代史学では帰属に議論あり(例: 文王による卦辞編纂)
 - `interpretation` ─ 後世の比喩・並行発見・構造的アナロジー(例: DNA コドン対応)
 
+## `data/cases.json`
+
+実践ケーススタディ。`applications.json` (シナリオ集=抽象) と対をなす実例集 (具体)。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `id` | string | ✓ | 一意キー (例: `L01`, `B05`, `R10`) |
+| `category` | string | ✓ | `life` / `business` / `relationships` |
+| `title` | string | ✓ | 見出し |
+| `situation` | string | ✓ | 状況の説明 (匿名化済み) |
+| `kw` | int[] | ✓ | 関連卦 KW番号 |
+| `principles` | string[] | ✓ | `worldview.json` の id |
+| `action` | string | ✓ | 取った行動 |
+| `outcome` | string | ✓ | 結果 |
+| `reflection` | string | ✓ | 振り返り・学び |
+
+### 不変条件
+- `id` は一意
+- `category` は3値のいずれか
+- 全 `kw` が `hexagrams.json` に存在、全 `principles` が `worldview.json` に存在
+- 全 5 文字列フィールド (title/situation/action/outcome/reflection) を持つ
+
+### 注意
+- 占断的な「予言が当たった」式の記述は含めない
+- 構造的整理 + 行動の参考としての記述に統一
+- 個人特定を避けて匿名化
+
 ## データ追加の流れ
 
 1. `data/<topic>` ブランチを作成

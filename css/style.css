@@ -939,6 +939,61 @@ button { font: inherit; color: inherit; }
   .story-arrow { display: none; }
 }
 
+/* ============================================================
+   Case studies
+   ============================================================ */
+.case-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+.case-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color .15s, transform .15s;
+}
+.case-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+.case-card .head {
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+}
+.case-card .head .id {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-3); background: var(--bg-2);
+  padding: 2px 8px; border-radius: 99px;
+}
+.case-card .head .cat {
+  font-size: 11px; letter-spacing: .12em;
+  color: var(--gold); padding: 2px 8px;
+  border: 1px solid rgba(200,169,106,.3); border-radius: 99px;
+}
+.case-card h3 {
+  margin: 0; color: var(--ink);
+  font-family: var(--font-serif); font-size: 17px; letter-spacing: .04em;
+}
+.case-card .field { display: flex; flex-direction: column; gap: 2px; }
+.case-card .field dt {
+  font-size: 10px; color: var(--ink-3);
+  letter-spacing: .12em; text-transform: uppercase;
+  margin: 0;
+}
+.case-card .field dd { margin: 0; color: var(--ink-2); font-size: 13px; line-height: 1.6; }
+.case-card .reflection {
+  background: rgba(200,169,106,.06); border-left: 3px solid var(--gold);
+  padding: 8px 12px; border-radius: 0 6px 6px 0;
+  color: var(--ink); font-size: 13px;
+}
+.case-card .footer {
+  display: flex; flex-wrap: wrap; gap: 4px; font-size: 12px; color: var(--ink-3);
+  border-top: 1px solid var(--line); padding-top: 10px;
+}
+.case-card .footer a {
+  border: 1px solid var(--line); background: var(--bg-2);
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 12px; color: var(--ink-2);
+  text-decoration: none;
+}
+.case-card .footer a:hover { color: var(--gold); border-color: var(--gold); }
+
 /* Confidence level chips */
 .lvl {
   display: inline-block;

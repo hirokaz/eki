@@ -32,6 +32,7 @@
       <button class="tab" role="tab" aria-selected="false" data-target="journal">ジャーナル</button>
       <button class="tab" role="tab" aria-selected="false" data-target="worldview">見方</button>
       <button class="tab" role="tab" aria-selected="false" data-target="applications">応用</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="cases">ケース</button>
       <button class="tab" role="tab" aria-selected="false" data-target="legacy">影響</button>
       <button class="tab" role="tab" aria-selected="false" data-target="science">自然科学</button>
     </nav>
@@ -306,6 +307,32 @@
       </div>
 
       <div id="app-cards" class="app-grid" style="margin-top: 16px;"></div>
+    </section>
+
+    <section id="cases" class="section" role="tabpanel" aria-label="ケース">
+      <h2>ケーススタディ ─ 30 件の具体例</h2>
+      <p class="lead">
+        抽象的な原理ではなく、<strong>具体的な状況・取った行動・結果・振り返り</strong>を1ケースとしてまとめたもの。
+        匿名化された実例ベース。応用 (#applications) が「シナリオ集 (抽象)」、ここは「実例集 (具体)」と役割を分けています。
+        フィルタで領域や卦から絞り込めます。
+      </p>
+
+      <div class="hex-controls">
+        <div class="seg" role="tablist" aria-label="領域" id="case-cat">
+          <button class="seg__btn is-on" data-cat="all"           type="button">全て</button>
+          <button class="seg__btn"       data-cat="life"          type="button">人生</button>
+          <button class="seg__btn"       data-cat="business"      type="button">経営</button>
+          <button class="seg__btn"       data-cat="relationships" type="button">人間関係</button>
+        </div>
+        <div class="hex-filter">
+          <label for="case-kw" class="muted" style="margin-right: 8px;">卦で絞る:</label>
+          <select id="case-kw">
+            <option value="">— 指定なし —</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="case-cards" class="case-grid"></div>
     </section>
 
     <section id="legacy" class="section" role="tabpanel" aria-label="影響">

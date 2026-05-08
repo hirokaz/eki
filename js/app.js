@@ -9,7 +9,7 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence, deep] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence, deep, cases] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
@@ -20,6 +20,7 @@ async function loadData() {
     fetch('data/curriculum.json').then((r) => r.json()),
     fetch('data/sequence.json').then((r) => r.json()),
     fetch('data/hexagrams-deep.json').then((r) => r.json()),
+    fetch('data/cases.json').then((r) => r.json()),
   ]);
   // Merge deep info into hexagrams by kw
   const deepByKw = Object.fromEntries(deep.map((d) => [d.kw, d]));
@@ -36,6 +37,7 @@ async function loadData() {
   state.diagnose = diagnose;
   state.curriculum = curriculum;
   state.sequence = sequence;
+  state.cases = cases;
 }
 
 function setupTabs() {
@@ -1227,6 +1229,12 @@ function buildSearchIndex(s) {
     text: `${d.core_link} ${d.summary}`,
     target: 'legacy', payload: {},
   }));
+  (s.cases || []).forEach((c) => idx.push({
+    kind: `ケース / ${c.category}`, icon: '◆',
+    title: c.title,
+    text: `${c.situation} ${c.action} ${c.outcome} ${c.reflection}`,
+    target: 'cases', payload: {},
+  }));
   return idx;
 }
 
@@ -1484,6 +1492,80 @@ function setupStory(sequence, hexagrams) {
   render();
 }
 
+// ============================================================
+// Cases (#29)
+// ============================================================
+const CAT_LABEL = { life: '人生', business: '経営', relationships: '人間関係' };
+
+function setupCases(cases, hexagrams, worldview) {
+  const root = document.getElementById('case-cards');
+  const sel  = document.getElementById('case-kw');
+  const tabs = document.querySelectorAll('#case-cat .seg__btn');
+  if (!root || !sel) return;
+  let curCat = 'all';
+  let curKw  = '';
+
+  // Populate kw select with only the kws that appear in cases
+  const usedKws = new Set();
+  cases.forEach((c) => (c.kw || []).forEach((k) => usedKws.add(k)));
+  const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+  [...usedKws].sort((a, b) => a - b).forEach((kw) => {
+    const h = hexByKw[kw];
+    const o = document.createElement('option');
+    o.value = String(kw);
+    o.textContent = `KW#${kw} ${h.symbol} ${h.name_zh}`;
+    sel.appendChild(o);
+  });
+
+  const render = () => {
+    root.innerHTML = '';
+    const wvById = Object.fromEntries(worldview.map((p) => [p.id, p]));
+    const filtered = cases.filter((c) => {
+      if (curCat !== 'all' && c.category !== curCat) return false;
+      if (curKw && !(c.kw || []).includes(Number(curKw))) return false;
+      return true;
+    });
+    if (filtered.length === 0) {
+      root.innerHTML = `<div class="journal-empty">該当ケースがありません。フィルタを調整してください。</div>`;
+      return;
+    }
+    filtered.forEach((c) => {
+      const card = document.createElement('article');
+      card.className = 'case-card';
+      const related = (c.kw || [])
+        .map((kw) => hexByKw[kw]).filter(Boolean)
+        .map((h) => `<a href="#hexagrams" data-jump-kw="${h.kw}">${h.symbol} ${h.name_zh}</a>`).join('');
+      const principles = (c.principles || [])
+        .map((id) => wvById[id]).filter(Boolean)
+        .map((p) => `<span style="color:var(--gold);" title="${p.concept}">${p.name_zh}</span>`).join(' / ');
+      card.innerHTML = `
+        <div class="head">
+          <span class="id">${c.id}</span>
+          <span class="cat">${CAT_LABEL[c.category]}</span>
+        </div>
+        <h3>${c.title}</h3>
+        <dl class="field"><dt>状況</dt><dd>${c.situation}</dd></dl>
+        <dl class="field"><dt>取った行動</dt><dd>${c.action}</dd></dl>
+        <dl class="field"><dt>結果</dt><dd>${c.outcome}</dd></dl>
+        <div class="reflection"><strong style="color:var(--gold);margin-right:6px;">振り返り:</strong>${c.reflection}</div>
+        <div class="footer">
+          <span style="margin-right:6px;">関連卦:</span>${related || '<em>—</em>'}
+          ${principles ? `<span style="margin-left:8px;">原理: ${principles}</span>` : ''}
+        </div>
+      `;
+      root.appendChild(card);
+    });
+  };
+
+  tabs.forEach((t) => t.addEventListener('click', () => {
+    tabs.forEach((b) => b.classList.toggle('is-on', b === t));
+    curCat = t.dataset.cat;
+    render();
+  }));
+  sel.addEventListener('change', () => { curKw = sel.value; render(); });
+  render();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -1500,6 +1582,7 @@ async function main() {
     setupJournal(state.hexagrams, state.worldview);
     setupLearn(state.curriculum);
     setupStory(state.sequence, state.hexagrams);
+    setupCases(state.cases, state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);
