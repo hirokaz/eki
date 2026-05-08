@@ -1,0 +1,23 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Node (if tooling is added later)
+node_modules/
+npm-debug.log*
+
+# Python (for local server scripts)
+__pycache__/
+*.pyc
+
+# Build artifacts
+dist/
+build/
+.cache/
+
+# Local-only
+.env
+.env.local
