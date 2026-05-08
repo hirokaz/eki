@@ -9,7 +9,7 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence, deep] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
@@ -19,7 +19,14 @@ async function loadData() {
     fetch('data/diagnose.json').then((r) => r.json()),
     fetch('data/curriculum.json').then((r) => r.json()),
     fetch('data/sequence.json').then((r) => r.json()),
+    fetch('data/hexagrams-deep.json').then((r) => r.json()),
   ]);
+  // Merge deep info into hexagrams by kw
+  const deepByKw = Object.fromEntries(deep.map((d) => [d.kw, d]));
+  hexagrams.forEach((h) => {
+    const d = deepByKw[h.kw];
+    if (d) h.deep = { image: d.image, modern: d.modern, key_question: d.key_question };
+  });
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
   state.worldview = worldview;
@@ -502,6 +509,28 @@ function showHexDetail(trigrams, h) {
     grid.appendChild(wrap);
   }
   document.getElementById('hex-detail-summary').textContent = h.summary;
+
+  // Deep insights (#23)
+  let deepEl = document.getElementById('hex-detail-deep');
+  if (!deepEl) {
+    deepEl = document.createElement('div');
+    deepEl.id = 'hex-detail-deep';
+    deepEl.className = 'hex-detail-deep';
+    document.getElementById('hex-detail').appendChild(deepEl);
+  }
+  if (h.deep) {
+    deepEl.innerHTML = `
+      <h4>深層解説</h4>
+      <dl>
+        <div><dt>象 (Image)</dt><dd>${h.deep.image}</dd></div>
+        <div><dt>現代訳</dt><dd>${h.deep.modern}</dd></div>
+        <div><dt>自分への問い</dt><dd>${h.deep.key_question}</dd></div>
+      </dl>
+    `;
+    deepEl.hidden = false;
+  } else {
+    deepEl.hidden = true;
+  }
 
   // Re-render grid to update "is-on" highlight
   renderHexGrid(state.trigrams, state.hexagrams);
