@@ -128,7 +128,47 @@
       </article>
     </section>
     <section id="trigrams" class="section" role="tabpanel" aria-label="八卦">
-      <p class="section__placeholder">八卦セクション (Issue #4 で実装)</p>
+      <h2>八卦 ─ 3 ビット = 8 通りの組合せ</h2>
+      <p class="lead">
+        爻 (1 ビット) を 3 つ重ねると、ちょうど 2³ = 8 通りの符号が生じます。
+        これが<strong>八卦</strong>です。それぞれが自然界の基本要素 ─ 天・沢・火・雷・風・水・山・地 ─ に対応づけられました。
+        以下のカードはクリックで詳細を表示します。
+      </p>
+
+      <div id="trig-cards" class="trig-grid"></div>
+
+      <div class="grid grid-2" style="margin-top: 24px;">
+        <article class="card">
+          <h3>先天八卦 (伏羲八卦) ─ 二進数の秩序</h3>
+          <div id="bagua-svg" class="bagua-wrap" aria-label="先天八卦円配置"></div>
+          <p class="muted" style="font-size: 13px; margin-top: 8px;">
+            円の対面どうしは<strong>陰陽が完全に反転</strong>(2進補数=7-n)。
+            例: 乾(7) ↔ 坤(0)、兌(3) ↔ 艮(4)。
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>カウントアップ ─ 0 から 7 へ</h3>
+          <p style="color:var(--ink-2);">
+            八卦を二進値 0,1,2,…,7 の順に並べると、コンピュータの 3 ビットカウンタと
+            完全に一致します。
+          </p>
+          <div id="trig-counter" class="trig-counter"></div>
+          <button id="trig-counter-play" type="button" class="btn">▶ 0→7 アニメーション</button>
+        </article>
+      </div>
+
+      <article id="trig-detail" class="card detail-card" hidden>
+        <header class="detail-card__header">
+          <span id="trig-detail-symbol" class="detail-card__symbol"></span>
+          <div>
+            <h3 id="trig-detail-title" style="margin:0;"></h3>
+            <p id="trig-detail-sub" class="muted" style="margin:2px 0 0;"></p>
+          </div>
+        </header>
+        <dl id="trig-detail-grid" class="detail-grid"></dl>
+        <p id="trig-detail-summary" style="margin: 12px 0 0; color: var(--ink-2);"></p>
+      </article>
     </section>
     <section id="hexagrams" class="section" role="tabpanel" aria-label="六十四卦">
       <p class="section__placeholder">六十四卦セクション (Issue #5 で実装)</p>
