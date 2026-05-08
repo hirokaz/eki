@@ -61,6 +61,13 @@ python3 -m http.server 8000
 
 詳しくは [CONTRIBUTING.md](./CONTRIBUTING.md) を参照。
 
+## 学習者向けドキュメント
+
+- [docs/curriculum.md](./docs/curriculum.md) ─ 初級/中級/上級のカリキュラム
+- [docs/reading-list.md](./docs/reading-list.md) ─ 信頼できる文献ガイド
+- [docs/roadmap.md](./docs/roadmap.md) ─ 今後の改善候補
+- [docs/data-schema.md](./docs/data-schema.md) ─ データ構造の仕様
+
 ## ライセンス
 
 MIT License
