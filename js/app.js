@@ -9,14 +9,16 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
+    fetch('data/applications.json').then((r) => r.json()),
   ]);
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
   state.worldview = worldview;
+  state.applications = applications;
 }
 
 function setupTabs() {
@@ -564,6 +566,55 @@ function setupWorldview(worldview, hexagrams) {
   });
 }
 
+// ============================================================
+// Applications section
+// ============================================================
+function setupApplications(applications, hexagrams, worldview) {
+  const tabs = document.querySelectorAll('#app-subtabs .seg__btn');
+  if (!tabs.length) return;
+  let current = 'life';
+  tabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabs.forEach((b) => b.classList.toggle('is-on', b === btn));
+      current = btn.dataset.cat;
+      renderAppCards(current, applications, hexagrams, worldview);
+    });
+  });
+  renderAppCards(current, applications, hexagrams, worldview);
+}
+
+function renderAppCards(category, applications, hexagrams, worldview) {
+  const root = document.getElementById('app-cards');
+  if (!root) return;
+  root.innerHTML = '';
+  const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+  const wvById  = Object.fromEntries(worldview.map((p) => [p.id, p]));
+
+  applications.filter((a) => a.category === category).forEach((sc) => {
+    const card = document.createElement('article');
+    card.className = 'app-card';
+    const related = (sc.related_kw || [])
+      .map((kw) => hexByKw[kw])
+      .filter(Boolean)
+      .map((h) => `<a href="#hexagrams" data-jump-kw="${h.kw}" title="${h.name_zh} (${h.name_jp})">${h.symbol} ${h.name_zh}</a>`)
+      .join('');
+    const principles = (sc.principles || [])
+      .map((id) => wvById[id])
+      .filter(Boolean)
+      .map((p) => `<span title="${p.concept}">${p.name_zh}</span>`)
+      .join('');
+    const questions = (sc.questions || []).map((q) => `<li>${q}</li>`).join('');
+    card.innerHTML = `
+      <h3>${sc.title}</h3>
+      <p class="situation">${sc.situation}</p>
+      <ul class="questions">${questions}</ul>
+      <div class="related"><span style="margin-right:6px;">関連卦:</span>${related || '<em>—</em>'}</div>
+      <div class="principles"><span style="margin-right:6px;">関連原理:</span>${principles || '<em>—</em>'}</div>
+    `;
+    root.appendChild(card);
+  });
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -572,6 +623,7 @@ async function main() {
     setupTrigrams(state.trigrams);
     setupHexagrams(state.trigrams, state.hexagrams);
     setupWorldview(state.worldview, state.hexagrams);
+    setupApplications(state.applications, state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);

@@ -72,6 +72,25 @@
 - 全ての `related_kw` は `data/hexagrams.json` の `kw` に存在する
 - `id` はファイル内で一意
 
+## `data/applications.json`
+
+人生・経営・人間関係 の 3 領域における応用シナリオの配列。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `id` | string | ✓ | 一意キー (`life-self`, `biz-phase` 等) |
+| `category` | string | ✓ | `life` / `business` / `relationships` のいずれか |
+| `title` | string | ✓ | カード見出し |
+| `situation` | string | ✓ | 想定する状況の解説 |
+| `questions` | string[] | ✓ | 自分に問うべき問いのリスト(2-4 件) |
+| `related_kw` | int[] | ✓ | 関連卦の KW番号 |
+| `principles` | string[] | ✓ | `worldview.json` の `id` の配列 |
+
+### 不変条件
+- `category ∈ { life, business, relationships }`
+- 全ての `related_kw` は `hexagrams.json` の `kw` に存在
+- 全ての `principles` の各要素は `worldview.json` の `id` に存在
+
 ## データ追加の流れ
 
 1. `data/<topic>` ブランチを作成
