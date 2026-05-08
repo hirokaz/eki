@@ -152,6 +152,58 @@ button { font: inherit; color: inherit; }
   background: linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
 }
 
+/* ============================================================
+   Yin-Yang section
+   ============================================================ */
+.taiji-card { display: flex; flex-direction: column; align-items: center; }
+.taiji-card img { display: block; max-width: 100%; height: auto; }
+
+/* Larger interactive yao stack */
+.yao-stack-large {
+  display: flex; flex-direction: column-reverse; gap: 8px;
+  margin: 16px 0 18px;
+  align-items: center;
+}
+.yao-large {
+  width: 220px; height: 16px; border-radius: 3px;
+  background: var(--yang); cursor: pointer;
+  border: 1px solid rgba(0,0,0,.2);
+  transition: transform .12s ease, filter .12s ease;
+}
+.yao-large.yin {
+  background:
+    linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
+}
+.yao-large:hover { transform: translateY(-1px); filter: brightness(1.08); }
+.yao-large:active { transform: translateY(0); filter: brightness(.95); }
+
+.yy-readout {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px 16px;
+  margin-top: 8px; padding: 12px;
+  background: var(--bg-2); border-radius: 8px;
+  font-size: 14px;
+}
+.yy-readout code { color: var(--gold); font-family: var(--font-mono); }
+.yy-readout .hex-sym { font-size: 28px; line-height: 1; }
+.yy-readout .muted { color: var(--ink-3); font-size: 11px; letter-spacing: .12em; }
+
+/* Powers table */
+.powers-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.powers-table th, .powers-table td {
+  padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+.powers-table th {
+  color: var(--gold); font-weight: 600; font-size: 12px;
+  letter-spacing: .12em; text-transform: uppercase;
+}
+.powers-table tr:last-child td { border-bottom: 0; }
+.powers-table tr:hover td { background: rgba(255,255,255,.02); }
+
+/* Generic bullets */
+.bullets { padding-left: 1.2em; margin: 0; color: var(--ink-2); }
+.bullets li { margin-bottom: 4px; }
+
 /* Footer */
 .site-footer {
   border-top: 1px solid var(--line);

@@ -42,8 +42,56 @@ function setupTabs() {
   if (document.getElementById(initial)) activate(initial);
 }
 
+// ============================================================
+// Yin-Yang section: interactive 6-yao bit toggle
+// ============================================================
+function setupYinYang() {
+  const stack = document.getElementById('yy-yao');
+  if (!stack) return;
+  // bits[0] = bottom (line 1), bits[5] = top (line 6)
+  const bits = [0, 0, 0, 0, 0, 0];
+
+  // Render six yao buttons; column-reverse means bits[0] visually at bottom
+  bits.forEach((_, i) => {
+    const el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'yao-large yin';
+    el.setAttribute('aria-label', `第${i + 1}爻 (現在: 陰)`);
+    el.dataset.idx = String(i);
+    el.addEventListener('click', () => {
+      bits[i] ^= 1;
+      el.classList.toggle('yin', bits[i] === 0);
+      el.setAttribute('aria-label', `第${i + 1}爻 (現在: ${bits[i] ? '陽' : '陰'})`);
+      updateReadout();
+    });
+    stack.appendChild(el);
+  });
+
+  function updateReadout() {
+    // Top → bottom display order = bits[5..0]
+    const binTopDown = bits.slice().reverse().map((b) => b).join('');
+    const dec = parseInt(binTopDown, 2);
+    // Fuxi value: lower trigram = bits[2,1,0], upper = bits[5,4,3]
+    const lower = bits[0] + bits[1] * 2 + bits[2] * 4;
+    const upper = bits[3] + bits[4] * 2 + bits[5] * 4;
+    const fuxi = upper * 8 + lower;
+    const hex = state.hexagrams.find((h) => h.fuxi === fuxi);
+    document.getElementById('yy-bin').textContent  = binTopDown;
+    document.getElementById('yy-dec').textContent  = String(dec);
+    document.getElementById('yy-fuxi').textContent = String(fuxi);
+    if (hex) {
+      document.getElementById('yy-kw').textContent   = String(hex.kw);
+      document.getElementById('yy-sym').textContent  = hex.symbol;
+      document.getElementById('yy-name').textContent = `${hex.name_zh} (${hex.name_jp})`;
+    }
+  }
+
+  document.addEventListener('eki:data-loaded', updateReadout, { once: true });
+}
+
 async function main() {
   setupTabs();
+  setupYinYang();
   try {
     await loadData();
     // Hook for section renderers (added in later issues)

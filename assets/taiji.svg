@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-110 -110 220 220" role="img" aria-label="太極図 (Taiji) - 陰陽の象徴">
+  <title>太極図 / Taiji</title>
+  <desc>陰陽の二元相補性を表す古代の図像。本サイトでは「2値=ビット」の自然科学的対応を象徴する。</desc>
+  <defs>
+    <radialGradient id="gloss" cx="0.3" cy="0.3" r="0.7">
+      <stop offset="0%"   stop-color="rgba(255,255,255,0.10)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </radialGradient>
+  </defs>
+
+  <!-- 外円 (yin / 陰): 群青の濃淡 -->
+  <circle cx="0" cy="0" r="100" fill="#1a2840" />
+
+  <!-- yang (陽) 領域: 金 (kin) 寄りの淡色 -->
+  <path d="
+    M 0 -100
+    A 100 100 0 0 1 0 100
+    A 50 50 0 0 0 0 0
+    A 50 50 0 0 1 0 -100
+    Z" fill="#e8d29a" />
+
+  <!-- 陽の中の小さな陰 (右上の点) -->
+  <circle cx="0" cy="-50" r="14" fill="#1a2840" />
+  <!-- 陰の中の小さな陽 (左下の点) -->
+  <circle cx="0" cy="50"  r="14" fill="#e8d29a" />
+
+  <!-- 立体感の薄い艶 -->
+  <circle cx="0" cy="0" r="100" fill="url(#gloss)" />
+
+  <!-- 縁取り -->
+  <circle cx="0" cy="0" r="100" fill="none" stroke="#c8a96a" stroke-width="1.5" opacity="0.6" />
+</svg>
