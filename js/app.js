@@ -9,12 +9,14 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams] = await Promise.all([
+  const [trigrams, hexagrams, worldview] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
+    fetch('data/worldview.json').then((r) => r.json()),
   ]);
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
+  state.worldview = worldview;
 }
 
 function setupTabs() {
@@ -518,15 +520,49 @@ function hexState_resolve() {
   };
 }
 
-// Click-to-jump on detail links
+// Click-to-jump on detail links (works from any section)
 document.addEventListener('click', (e) => {
   const a = e.target.closest('a[data-jump-kw]');
   if (!a) return;
   e.preventDefault();
   const kw = Number(a.dataset.jumpKw);
   const h = state.hexagrams.find((x) => x.kw === kw);
-  if (h) showHexDetail(state.trigrams, h);
+  if (!h) return;
+  // Activate hexagrams tab
+  document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.target === 'hexagrams')));
+  document.querySelectorAll('.section').forEach((s) => s.classList.toggle('is-active', s.id === 'hexagrams'));
+  showHexDetail(state.trigrams, h);
+  document.getElementById('hex-detail').scrollIntoView({ behavior: 'smooth', block: 'center' });
 });
+
+// ============================================================
+// Worldview section
+// ============================================================
+function setupWorldview(worldview, hexagrams) {
+  const root = document.getElementById('wv-cards');
+  if (!root) return;
+  root.innerHTML = '';
+  const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+
+  worldview.forEach((p) => {
+    const card = document.createElement('article');
+    card.className = 'wv-card';
+    const related = (p.related_kw || [])
+      .map((kw) => hexByKw[kw])
+      .filter(Boolean)
+      .map((h) => `<a href="#hexagrams" data-jump-kw="${h.kw}" title="${h.name_zh} (${h.name_jp})">${h.symbol} ${h.name_zh}</a>`)
+      .join('');
+    card.innerHTML = `
+      <h3 class="wv-card__title">${p.name_zh}<small>${p.name_jp} ・ ${p.name_en}</small></h3>
+      <p class="wv-card__concept">${p.concept}</p>
+      <p class="wv-card__summary">${p.summary}</p>
+      <div class="wv-card__practice"><strong>応用:</strong>${p.practice}</div>
+      <div class="wv-card__related"><span style="margin-right:6px;">関連卦:</span>${related || '<em>該当卦なし</em>'}</div>
+      <p class="wv-card__src">出典: ${p.source}</p>
+    `;
+    root.appendChild(card);
+  });
+}
 
 async function main() {
   setupTabs();
@@ -535,6 +571,7 @@ async function main() {
     await loadData();
     setupTrigrams(state.trigrams);
     setupHexagrams(state.trigrams, state.hexagrams);
+    setupWorldview(state.worldview, state.hexagrams);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);
