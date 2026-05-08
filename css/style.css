@@ -280,6 +280,87 @@ button { font: inherit; color: inherit; }
 .detail-grid dt { font-size: 11px; color: var(--ink-3); letter-spacing: .12em; }
 .detail-grid dd { margin: 2px 0 0; color: var(--ink); }
 
+/* ============================================================
+   Hexagrams matrix
+   ============================================================ */
+.hex-controls {
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.seg { display: inline-flex; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg__btn {
+  appearance: none; border: 0; background: transparent;
+  color: var(--ink-2); padding: 8px 14px; cursor: pointer;
+  font-size: 13px; letter-spacing: .08em;
+  border-right: 1px solid var(--line);
+}
+.seg__btn:last-child { border-right: 0; }
+.seg__btn:hover { background: rgba(255,255,255,.04); color: var(--ink); }
+.seg__btn.is-on { background: rgba(200,169,106,.12); color: var(--gold); }
+
+.hex-filter { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.hex-filter .chip {
+  padding: 4px 10px; border-radius: 99px;
+  border: 1px solid var(--line); background: var(--bg-2);
+  font-size: 13px; color: var(--ink-2); cursor: pointer;
+}
+.hex-filter .chip:hover { color: var(--ink); border-color: var(--gold); }
+.hex-filter .chip.is-on { background: var(--gold); color: var(--bg-0); border-color: var(--gold); }
+
+/* Fuxi grid: 9x9 (header row/col + 8x8) */
+.hex-grid.is-fuxi {
+  display: grid;
+  grid-template-columns: 38px repeat(8, 1fr);
+  gap: 2px;
+  background: var(--line);
+  border-radius: 8px;
+  padding: 2px;
+  overflow: hidden;
+}
+.hex-grid .h, .hex-grid .corner {
+  background: var(--bg-2); padding: 6px 2px;
+  text-align: center; font-size: 16px; color: var(--gold);
+}
+.hex-grid .corner { color: var(--ink-3); font-size: 11px; }
+.hex-grid .cell {
+  background: var(--bg-1); padding: 6px 2px;
+  text-align: center; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  font-size: 11px; color: var(--ink-3);
+  transition: background .12s, color .12s, transform .12s;
+}
+.hex-grid .cell:hover {
+  background: rgba(200,169,106,.12); color: var(--ink);
+  transform: scale(1.04);
+}
+.hex-grid .cell .sym { font-size: 22px; line-height: 1; color: var(--gold); }
+.hex-grid .cell .nm  { display: block; }
+.hex-grid .cell.is-dim { opacity: 0.18; }
+.hex-grid .cell.is-on  { box-shadow: 0 0 0 1px var(--gold) inset; }
+
+/* KW list view: 8 columns of 8 entries */
+.hex-grid.is-kw {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(98px, 1fr));
+  gap: 6px;
+}
+.hex-grid.is-kw .cell {
+  border-radius: 6px; background: var(--bg-1); padding: 8px 4px;
+  border: 1px solid var(--line);
+}
+.hex-grid.is-kw .cell .kw-num { color: var(--ink-3); font-family: var(--font-mono); }
+
+/* Hex detail */
+.hex-detail-yao {
+  display: flex; flex-direction: column-reverse; gap: 4px;
+  padding-left: 16px;
+}
+.hex-detail-yao .yao-row { width: 90px; height: 8px; border-radius: 2px; background: var(--yang); }
+.hex-detail-yao .yao-row.yin {
+  background: linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
+}
+
 /* Generic bullets */
 .bullets { padding-left: 1.2em; margin: 0; color: var(--ink-2); }
 .bullets li { margin-bottom: 4px; }
