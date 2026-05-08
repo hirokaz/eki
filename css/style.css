@@ -573,6 +573,94 @@ button { font: inherit; color: inherit; }
 .sci-states-table th { color: var(--gold); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
 .sci-states-table .sym { font-size: 22px; color: var(--gold); margin-right: 6px; vertical-align: middle; }
 
+/* ============================================================
+   Diagnose wizard
+   ============================================================ */
+.diag-progress {
+  width: 100%; height: 4px; background: var(--bg-2); border-radius: 99px;
+  margin-bottom: 16px; overflow: hidden;
+}
+.diag-progress__bar {
+  width: 0; height: 100%; background: var(--gold);
+  transition: width .3s ease;
+}
+.diag-card {
+  min-height: 320px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.diag-card .step {
+  font-size: 11px; color: var(--ink-3); letter-spacing: .12em;
+}
+.diag-card .prompt {
+  font-family: var(--font-serif);
+  font-size: 22px; color: var(--ink); margin: 0;
+  letter-spacing: .04em;
+}
+.diag-options {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.diag-option {
+  appearance: none; border: 1px solid var(--line);
+  background: var(--bg-2); color: var(--ink);
+  border-radius: 8px; padding: 14px 16px;
+  text-align: left; cursor: pointer;
+  transition: all .15s ease;
+  font-size: 14px;
+}
+.diag-option:hover {
+  border-color: var(--gold);
+  background: rgba(200,169,106,.06);
+  transform: translateY(-1px);
+}
+
+.diag-result {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.diag-result h3 {
+  margin: 0;
+  font-family: var(--font-serif); color: var(--gold);
+  font-size: 18px; letter-spacing: .04em;
+}
+.diag-result__hex {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.diag-result__hex .item {
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px;
+  display: flex; gap: 12px; align-items: center;
+  cursor: pointer; transition: all .15s;
+  text-decoration: none; color: var(--ink);
+}
+.diag-result__hex .item:hover { border-color: var(--gold); transform: translateY(-1px); }
+.diag-result__hex .sym { font-size: 36px; color: var(--gold); line-height: 1; }
+.diag-result__hex .name { font-size: 15px; font-family: var(--font-serif); }
+.diag-result__hex .meta { font-size: 11px; color: var(--ink-3); }
+.diag-result__hex .score { margin-left: auto; color: var(--gold); font-family: var(--font-mono); font-size: 12px; }
+
+.diag-result__principles {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.diag-result__principles .chip {
+  border: 1px solid rgba(200,169,106,.4);
+  background: rgba(200,169,106,.06);
+  color: var(--gold);
+  padding: 4px 12px; border-radius: 99px;
+  font-size: 13px;
+}
+.diag-result__questions {
+  background: var(--bg-2); border-radius: 8px;
+  border-left: 3px solid var(--gold);
+  padding: 14px 18px; margin: 0;
+  list-style: '— ';
+}
+.diag-result__questions li { margin: 6px 0; color: var(--ink); }
+
+.diag-result__actions {
+  display: flex; gap: 10px; margin-top: 6px;
+}
+
 /* Confidence level chips */
 .lvl {
   display: inline-block;
