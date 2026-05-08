@@ -10,7 +10,7 @@
       "極まっているもの、欠けているものは何か"
     ],
     "related_kw": [1, 2, 24, 52],
-    "principles": ["henneki", "fueki", "chusei"]
+    "principles": ["hen_eki", "fueki", "chusei"]
   },
   {
     "id": "life-decision",
@@ -23,7 +23,7 @@
       "進んだ場合・退いた場合、それぞれ次に来る卦は何か"
     ],
     "related_kw": [33, 34, 43, 44],
-    "principles": ["jichu", "buksyoku_hihan"]
+    "principles": ["jichu", "bukkyoku_hippan"]
   },
   {
     "id": "life-turning",
@@ -36,7 +36,7 @@
       "どの『元の場所』に戻ろうとしているのか"
     ],
     "related_kw": [3, 24, 49, 51],
-    "principles": ["henneki", "jokar"]
+    "principles": ["hen_eki", "joka"]
   },
   {
     "id": "life-restraint",
@@ -62,7 +62,7 @@
       "極まっているなら反転の兆しは何か"
     ],
     "related_kw": [29, 39, 47, 36],
-    "principles": ["buksyoku_hihan", "ouhi", "tairitsu_souho"]
+    "principles": ["bukkyoku_hippan", "ouhi", "tairitsu_souho"]
   },
 
   {
@@ -76,7 +76,7 @@
       "成熟期に入っているなら、未濟への再起動はいつか"
     ],
     "related_kw": [3, 4, 5, 63, 64],
-    "principles": ["jokar", "henneki"]
+    "principles": ["joka", "hen_eki"]
   },
   {
     "id": "biz-crisis",
@@ -102,7 +102,7 @@
       "持続と更新のどちらが今の死活問題か"
     ],
     "related_kw": [49, 50, 32, 10],
-    "principles": ["jichu", "buksyoku_hihan"]
+    "principles": ["jichu", "bukkyoku_hippan"]
   },
   {
     "id": "biz-leader",
@@ -128,7 +128,7 @@
       "ステークホルダの応比(感応関係)は維持できているか"
     ],
     "related_kw": [53, 49, 36, 56],
-    "principles": ["jichu", "henneki", "ouhi"]
+    "principles": ["jichu", "hen_eki", "ouhi"]
   },
 
   {
@@ -194,6 +194,6 @@
       "散ったあとに残る『不易』は何か"
     ],
     "related_kw": [45, 59],
-    "principles": ["henneki", "fueki"]
+    "principles": ["hen_eki", "fueki"]
   }
 ]
