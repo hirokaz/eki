@@ -91,6 +91,45 @@
 - 全ての `related_kw` は `hexagrams.json` の `kw` に存在
 - 全ての `principles` の各要素は `worldview.json` の `id` に存在
 
+## `data/figures.json`
+
+歴史上、易経を読み・適用した人物の配列。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `id` | string | ✓ | 一意キー (英字) |
+| `name_zh` | string | ✓ | 漢字または通名 |
+| `name_jp` | string | ✓ | ふりがな |
+| `name_en` | string | ✓ | 英名 |
+| `era` | string | ✓ | 時代 |
+| `region` | string | ✓ | 地域 |
+| `domain` | string | ✓ | 主たる領域 |
+| `contribution` | string | ✓ | 易経との関わり |
+| `level` | enum | ✓ | `fact` / `tradition` / `interpretation` |
+| `related_kw` | int[] | ✓ | 関連卦 KW番号 |
+| `principles` | string[] | ✓ | `worldview.json` の id |
+
+## `data/disciplines.json`
+
+易の影響を受けた・並行する学問領域。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `id` | string | ✓ | 一意キー |
+| `name_jp` | string | ✓ | 日本語名 |
+| `name_en` | string | ✓ | 英名 |
+| `core_link` | string | ✓ | 易との核となる接続 |
+| `summary` | string | ✓ | 100–200 字で接続の内容 |
+| `level` | enum | ✓ | `fact` / `tradition` / `interpretation` |
+| `exemplars` | string[] | ✓ | `figures.json` の id 配列 |
+| `related_kw` | int[] | ✓ | 関連卦 KW番号 |
+
+### 信頼レベルの定義
+
+- `fact`        ─ 一次史料・公刊論文で確認できる事実
+- `tradition`   ─ 伝統的に帰属されているが現代史学では帰属に議論あり(例: 文王による卦辞編纂)
+- `interpretation` ─ 後世の比喩・並行発見・構造的アナロジー(例: DNA コドン対応)
+
 ## データ追加の流れ
 
 1. `data/<topic>` ブランチを作成
