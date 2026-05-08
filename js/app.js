@@ -722,6 +722,122 @@ document.addEventListener('click', (e) => {
   }, 50);
 });
 
+// ============================================================
+// Science section
+// ============================================================
+const STATE_READING = {
+  0: '安定 (低エネルギー基底状態) ─ 物質の充満',
+  1: '励起 (運動量パルス) ─ インパルス・始動',
+  2: '流動 (連続変形) ─ 流体の流れ',
+  3: '蓄積 (相変化点) ─ 容量に蓄える液面',
+  4: '固定 (相平衡) ─ 構造の停止・限界',
+  5: '反応 (発熱・放射) ─ 燃焼・依存反応',
+  6: '拡散 (粒子拡散) ─ 浸透・拡散場',
+  7: '極限 (最大活性) ─ 純粋ポテンシャル',
+};
+
+function setupScience(trigrams, hexagrams) {
+  setupSciLeibniz(hexagrams);
+  setupSciHamming(hexagrams);
+  setupSciStatesTable(trigrams);
+}
+
+function setupSciLeibniz(hexagrams) {
+  const root = document.getElementById('sci-leibniz');
+  if (!root) return;
+  root.innerHTML = '';
+  const byFuxi = Object.fromEntries(hexagrams.map((h) => [h.fuxi, h]));
+  // 8x8 in Fuxi binary order: row = upper (0..7), col = lower (0..7)
+  for (let upper = 0; upper < 8; upper++) {
+    for (let lower = 0; lower < 8; lower++) {
+      const fuxi = upper * 8 + lower;
+      const h = byFuxi[fuxi];
+      const cell = document.createElement('div');
+      cell.className = 'lcell';
+      cell.title = `${h.name_zh} (KW#${h.kw}) ─ Fuxi ${fuxi}`;
+      cell.innerHTML = `
+        <span class="sym">${h.symbol}</span>
+        <span class="bin">${fuxi.toString(2).padStart(6, '0')}</span>
+        <span class="kw">${fuxi} · KW${h.kw}</span>
+      `;
+      root.appendChild(cell);
+    }
+  }
+}
+
+function setupSciHamming(hexagrams) {
+  const root = document.getElementById('sci-hamming');
+  const sel  = document.getElementById('sci-h-pick');
+  if (!root || !sel) return;
+  sel.innerHTML = '';
+  // Default to KW#1 乾
+  [...hexagrams].sort((a, b) => a.kw - b.kw).forEach((h) => {
+    const o = document.createElement('option');
+    o.value = String(h.kw);
+    o.textContent = `KW#${h.kw} ${h.symbol} ${h.name_zh} (${h.name_jp})`;
+    sel.appendChild(o);
+  });
+  const render = () => {
+    const kw = Number(sel.value);
+    const base = hexagrams.find((h) => h.kw === kw);
+    if (!base) return;
+    const baseFuxi = base.fuxi;
+    const byFuxi = Object.fromEntries(hexagrams.map((h) => [h.fuxi, h]));
+    const neighbors = [];
+    for (let bit = 0; bit < 6; bit++) {
+      const f = baseFuxi ^ (1 << bit);
+      neighbors.push({ bit, h: byFuxi[f] });
+    }
+    root.innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'sci-hamming__row';
+    const baseCell = document.createElement('div');
+    baseCell.className = 'sci-hamming__base';
+    baseCell.innerHTML = `
+      <span class="sym">${base.symbol}</span>
+      <span class="nm">${base.name_zh}</span>
+      <span class="lbl">基準 KW#${base.kw}</span>
+    `;
+    row.appendChild(baseCell);
+    for (const { bit, h } of neighbors) {
+      const cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'sci-hamming__neighbor';
+      cell.title = `第${bit + 1}爻を反転 → KW#${h.kw} ${h.name_zh}`;
+      cell.innerHTML = `
+        <span class="sym">${h.symbol}</span>
+        <span class="nm">${h.name_zh}</span>
+        <span class="lbl">第${bit + 1}爻反転</span>
+      `;
+      cell.addEventListener('click', () => {
+        sel.value = String(h.kw);
+        render();
+      });
+      row.appendChild(cell);
+    }
+    root.appendChild(row);
+  };
+  sel.addEventListener('change', render);
+  sel.value = '1';
+  render();
+}
+
+function setupSciStatesTable(trigrams) {
+  const tbody = document.getElementById('sci-states-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  [...trigrams].sort((a, b) => a.id - b.id).forEach((t) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span class="sym">${t.symbol}</span>${t.name_zh} <small style="color:var(--ink-3);">(${t.name_jp})</small></td>
+      <td>${t.natural} (${t.name_en})</td>
+      <td>${t.attribute}</td>
+      <td>${STATE_READING[t.id] || '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -732,6 +848,7 @@ async function main() {
     setupWorldview(state.worldview, state.hexagrams);
     setupApplications(state.applications, state.hexagrams, state.worldview);
     setupLegacy(state.figures, state.disciplines, state.hexagrams, state.worldview);
+    setupScience(state.trigrams, state.hexagrams);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);

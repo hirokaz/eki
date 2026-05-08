@@ -252,7 +252,131 @@
     </section>
 
     <section id="science" class="section" role="tabpanel" aria-label="自然科学">
-      <p class="section__placeholder">自然科学セクション (Issue #6 で実装)</p>
+      <h2>自然科学的視点 ─ 二進法・情報量・状態遷移・DNA</h2>
+      <p class="lead">
+        易経の符号体系を、現代の数理・情報・生命科学の言葉で読み直します。
+        強調しておきたいこと: ここでの対応は<strong>構造的な並行 (analogy)</strong>であって、
+        易経が現代科学を予言したわけではありません。
+        <em>同じ離散符号化のアイデアが文化を超えて何度も独立に現れた</em>、その共通骨格を眺めるのが目的です。
+      </p>
+
+      <!-- 1. ライプニッツの図 -->
+      <article class="card sci-block">
+        <h3>1. ライプニッツの発見 ─ 伏羲 64 卦 = 6 ビット二進数</h3>
+        <p style="color:var(--ink-2);">
+          1703 年、ライプニッツは宣教師ブーヴェから伏羲 64 卦の図を受け取り、
+          それが自分の二進数 0–63 と完全に一致することを発見しました。
+          以下は伏羲順 8×8 のグリッドに、二進値 (000000–111111) と KW 番号 を併記したものです。
+        </p>
+        <div id="sci-leibniz" class="sci-leibniz"></div>
+      </article>
+
+      <!-- 2. 情報量 -->
+      <article class="card sci-block">
+        <h3>2. 情報量 ─ 1 卦 = 6 ビット = log₂(64)</h3>
+        <div class="grid grid-2">
+          <div>
+            <p style="color:var(--ink-2); margin: 0 0 8px;">
+              シャノンの情報理論では、64 通りから 1 つを特定するのに必要な情報量は:
+            </p>
+            <p class="sci-formula">H = log₂(64) = <strong>6 ビット</strong></p>
+            <p style="color:var(--ink-2); margin: 12px 0 0; font-size: 14px;">
+              易の卦は最初から「情報量を最小単位 (爻 = 1 ビット) に分解した状態空間」として設計されている。
+              これはシャノンの情報量の発想と一致する。
+            </p>
+          </div>
+          <div>
+            <table class="sci-info-table">
+              <thead>
+                <tr><th>体系</th><th>状態数</th><th>情報量</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>陰陽 (爻)</td><td>2</td><td>1 bit</td></tr>
+                <tr><td>四象</td><td>4</td><td>2 bits</td></tr>
+                <tr><td>八卦</td><td>8</td><td>3 bits</td></tr>
+                <tr><td>六十四卦</td><td>64</td><td>6 bits</td></tr>
+                <tr><td>ASCII 1 文字</td><td>128</td><td>7 bits</td></tr>
+                <tr><td>1 バイト</td><td>256</td><td>8 bits</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3. DNA コドン -->
+      <article class="card sci-block">
+        <h3>3. 構造的並行 ─ DNA コドン (4³ = 64) と 64 卦</h3>
+        <p style="color:var(--ink-2);">
+          DNA は 4 種の塩基 (A/T/G/C) から成り、3 つ並ぶ「コドン」が 1 アミノ酸を指定します。
+          4³ = 64 通り、これは 64 卦と数が一致します。1973 年、M. シェーンベルガーがこの構造的並行を最初に指摘しました。
+          <span class="lvl lvl-interp">解釈・並行</span>
+        </p>
+        <div class="sci-dna-grid">
+          <div class="sci-dna-cell">
+            <div class="sci-dna-num">2 種</div>
+            <div class="sci-dna-name">陰陽</div>
+            <div class="sci-dna-mate">↔ 2 塩基対 (A↔T, G↔C)</div>
+          </div>
+          <div class="sci-dna-cell">
+            <div class="sci-dna-num">3 爻</div>
+            <div class="sci-dna-name">下卦 / 上卦</div>
+            <div class="sci-dna-mate">↔ 3 塩基 = 1 コドン</div>
+          </div>
+          <div class="sci-dna-cell">
+            <div class="sci-dna-num">2 × 3 = 6</div>
+            <div class="sci-dna-name">六爻</div>
+            <div class="sci-dna-mate">↔ 6 ビット = 4³ = 64</div>
+          </div>
+          <div class="sci-dna-cell">
+            <div class="sci-dna-num">64</div>
+            <div class="sci-dna-name">六十四卦</div>
+            <div class="sci-dna-mate">↔ 64 コドン (アミノ酸 20 + STOP)</div>
+          </div>
+        </div>
+        <p class="muted" style="font-size: 13px; margin-top: 10px;">
+          注: コドンは生命の機能単位、卦は記号の機能単位。「同じ機能」ではなく「同じ組合せ構造 (4³ あるいは 2⁶)」を持つ、という意味で並行。
+        </p>
+      </article>
+
+      <!-- 4. 状態遷移 (ハミング距離 1) -->
+      <article class="card sci-block">
+        <h3>4. 変爻 = ビット反転 = ハミング距離 1 の状態遷移</h3>
+        <p style="color:var(--ink-2);">
+          ある卦から 1 爻だけ陰陽を反転させると別の卦に移ります(これを「変爻」と呼ぶ)。
+          現代の言葉では <strong>ハミング距離 1 の状態遷移</strong>。
+          下から卦を選ぶと、その 6 つの「隣人」が表示されます。
+          64 卦の状態空間は 6 次元超立方体のグラフ構造をなします。
+        </p>
+        <div class="sci-hamming-controls">
+          <label for="sci-h-pick">基準卦:</label>
+          <select id="sci-h-pick"></select>
+        </div>
+        <div id="sci-hamming" class="sci-hamming"></div>
+      </article>
+
+      <!-- 5. 八卦と自然状態 -->
+      <article class="card sci-block">
+        <h3>5. 八卦と「自然の状態空間」</h3>
+        <p style="color:var(--ink-2);">
+          八卦が指す自然象徴は、現代風に読めば<strong>物質・エネルギーの状態</strong>として整理できます。
+          (これも構造的並行であって厳密対応ではありません)
+        </p>
+        <table class="sci-states-table">
+          <thead>
+            <tr><th>八卦</th><th>自然象</th><th>属性</th><th>現代的な「状態」読み</th></tr>
+          </thead>
+          <tbody id="sci-states-tbody"></tbody>
+        </table>
+      </article>
+
+      <article class="card" style="border-color: rgba(192,57,43,.4);">
+        <h3 style="color: var(--shu);">本セクションの留意点</h3>
+        <ul class="bullets" style="color: var(--ink-2);">
+          <li>易経が現代科学を「予言した」とは主張しません</li>
+          <li>同じ離散符号化のアイデアは文化を超えて何度も独立に現れています(易・ヘブライ秘伝・ピタゴラス・ライプニッツ・シャノン)</li>
+          <li>並行を見つけたら、必ず「これは比喩か、構造か、機能か」を区別すること</li>
+        </ul>
+      </article>
     </section>
   </main>
 
