@@ -52,6 +52,23 @@
 3. `symbol == chr(0x4DC0 + kw - 1)`
 4. `upper, lower ∈ [0, 7]`
 
+## `data/hexagrams-deep.json`
+
+64卦の深層解説。`hexagrams.json` と KW番号で結合される(別ファイルにすることで原データを軽量に保つ)。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `kw` | int | ✓ | 王弼順番号 1〜64 |
+| `image` | string | ✓ | 卦象から読み取れる「画像」(1 行) |
+| `modern` | string | ✓ | 現代生活への翻訳(1〜2 行) |
+| `key_question` | string | ✓ | 自分に投げる問い(1 行) |
+
+### 不変条件
+- 64 件、`kw` は重複なく 1〜64 を網羅
+- すべての kw が `hexagrams.json` の kw に存在
+
+UI では `loadData` 時に KW で結合して `hexagrams[i].deep` として参照される。
+
 ## `data/worldview.json`
 
 「易学的な見方」9 原理の配列。

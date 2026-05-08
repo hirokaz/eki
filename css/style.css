@@ -357,6 +357,24 @@ button { font: inherit; color: inherit; }
   padding-left: 16px;
 }
 .hex-detail-yao .yao-row { width: 90px; height: 8px; border-radius: 2px; background: var(--yang); }
+.hex-detail-deep {
+  margin-top: 16px; padding: 14px 18px;
+  background: rgba(200,169,106,.06); border-left: 3px solid var(--gold);
+  border-radius: 0 6px 6px 0;
+}
+.hex-detail-deep h4 {
+  margin: 0 0 8px; color: var(--gold);
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+}
+.hex-detail-deep dl { margin: 0; }
+.hex-detail-deep dl > div {
+  display: grid; grid-template-columns: 110px 1fr; gap: 12px;
+  padding: 6px 0; border-top: 1px solid var(--line);
+}
+.hex-detail-deep dl > div:first-child { border-top: 0; }
+.hex-detail-deep dt { color: var(--ink-3); font-size: 12px; letter-spacing: .04em; }
+.hex-detail-deep dd { margin: 0; color: var(--ink); font-size: 14px; }
+
 .hex-detail-yao .yao-row.yin {
   background: linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
 }

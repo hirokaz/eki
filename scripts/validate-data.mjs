@@ -13,6 +13,7 @@ const worldview   = read('data/worldview.json');
 const applications = read('data/applications.json');
 const figures     = read('data/figures.json');
 const disciplines = read('data/disciplines.json');
+const deep        = read('data/hexagrams-deep.json');
 
 const errors = [];
 const log = (msg) => errors.push(msg);
@@ -85,10 +86,22 @@ for (const d of disciplines) {
   }
 }
 
+// hexagrams-deep -----------------------------------------------
+if (deep.length !== 64) log(`hexagrams-deep: count ${deep.length} != 64`);
+const deepKwSet = new Set();
+for (const d of deep) {
+  if (!hexKwSet.has(d.kw)) log(`hexagrams-deep: kw ${d.kw} not in hexagrams`);
+  if (deepKwSet.has(d.kw)) log(`hexagrams-deep: duplicate kw ${d.kw}`);
+  deepKwSet.add(d.kw);
+  for (const f of ['image', 'modern', 'key_question']) {
+    if (!d[f] || typeof d[f] !== 'string') log(`hexagrams-deep KW#${d.kw}: missing ${f}`);
+  }
+}
+
 // -------------------------------------------------------------
 if (errors.length) {
   for (const e of errors) console.error('FAIL:', e);
   process.exit(1);
 }
 
-console.log(`OK: trigrams=${trigrams.length}, hexagrams=${hexagrams.length}, worldview=${worldview.length}, applications=${applications.length}, figures=${figures.length}, disciplines=${disciplines.length}`);
+console.log(`OK: trigrams=${trigrams.length}, hexagrams=${hexagrams.length}, deep=${deep.length}, worldview=${worldview.length}, applications=${applications.length}, figures=${figures.length}, disciplines=${disciplines.length}`);
