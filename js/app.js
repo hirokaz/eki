@@ -1153,9 +1153,175 @@ function setupJournal(hexagrams, worldview) {
   renderList();
 }
 
+// ============================================================
+// Search
+// ============================================================
+function buildSearchIndex(s) {
+  const idx = [];
+  s.hexagrams.forEach((h) => idx.push({
+    kind: '六十四卦', icon: h.symbol,
+    title: `KW#${h.kw} ${h.name_zh} (${h.name_jp}) ─ ${h.name_en}`,
+    text: `${h.summary} ${h.name_jp} ${h.name_en}`,
+    target: 'hexagrams', payload: { jumpKw: h.kw },
+  }));
+  s.trigrams.forEach((t) => idx.push({
+    kind: '八卦', icon: t.symbol,
+    title: `${t.name_zh} (${t.name_jp}) ─ ${t.name_en}`,
+    text: `${t.natural} ${t.attribute} ${t.family} ${t.summary}`,
+    target: 'trigrams', payload: {},
+  }));
+  s.worldview.forEach((p) => idx.push({
+    kind: '見方', icon: '◇',
+    title: `${p.name_zh} (${p.name_jp}) ─ ${p.name_en}`,
+    text: `${p.concept} ${p.summary} ${p.practice}`,
+    target: 'worldview', payload: {},
+  }));
+  s.applications.forEach((a) => idx.push({
+    kind: `応用 / ${a.category}`, icon: '✦',
+    title: a.title,
+    text: `${a.situation} ${(a.questions || []).join(' ')}`,
+    target: 'applications', payload: {},
+  }));
+  s.figures.forEach((f) => idx.push({
+    kind: '偉人', icon: '人',
+    title: `${f.name_zh} (${f.name_en})`,
+    text: `${f.era} ${f.region} ${f.domain} ${f.contribution}`,
+    target: 'legacy', payload: {},
+  }));
+  s.disciplines.forEach((d) => idx.push({
+    kind: '他学問', icon: '∞',
+    title: `${d.name_jp} (${d.name_en})`,
+    text: `${d.core_link} ${d.summary}`,
+    target: 'legacy', payload: {},
+  }));
+  return idx;
+}
+
+function setupSearch() {
+  const trigger = document.getElementById('search-trigger');
+  const overlay = document.getElementById('search-overlay');
+  const input   = document.getElementById('search-input');
+  const closeB  = document.getElementById('search-close');
+  const results = document.getElementById('search-results');
+  if (!trigger || !overlay) return;
+  let index = [];
+  let activeIdx = 0;
+  let lastResults = [];
+
+  const open = () => {
+    overlay.hidden = false;
+    setTimeout(() => input.focus(), 0);
+  };
+  const close = () => {
+    overlay.hidden = true;
+    input.value = '';
+    results.innerHTML = '';
+  };
+
+  document.addEventListener('eki:data-loaded', () => {
+    index = buildSearchIndex(state);
+  });
+
+  trigger.addEventListener('click', open);
+  closeB.addEventListener('click', close);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); open(); }
+    else if (e.key === 'Escape' && !overlay.hidden) close();
+    else if (!overlay.hidden && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+      e.preventDefault();
+      const items = results.querySelectorAll('.search-result');
+      if (!items.length) return;
+      activeIdx = (activeIdx + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      items.forEach((el, i) => el.classList.toggle('is-active', i === activeIdx));
+      items[activeIdx].scrollIntoView({ block: 'nearest' });
+    }
+    else if (!overlay.hidden && e.key === 'Enter') {
+      const items = results.querySelectorAll('.search-result');
+      if (items[activeIdx]) items[activeIdx].click();
+    }
+  });
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    if (!q) { results.innerHTML = `<div class="search-empty">キーワードを入力してください (例: 対立、決断、二進、ライプニッツ)</div>`; return; }
+    const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+    const matches = index.map((entry) => {
+      const haystack = (entry.title + ' ' + entry.text).toLowerCase();
+      const hits = tokens.every((t) => haystack.includes(t));
+      if (!hits) return null;
+      const score = tokens.reduce((acc, t) => acc + (entry.title.toLowerCase().includes(t) ? 3 : 0) + (haystack.split(t).length - 1), 0);
+      return { entry, score };
+    }).filter(Boolean).sort((a, b) => b.score - a.score).slice(0, 30);
+    lastResults = matches;
+    activeIdx = 0;
+    if (!matches.length) {
+      results.innerHTML = `<div class="search-empty">該当なし</div>`; return;
+    }
+    const grouped = {};
+    matches.forEach(({ entry }) => {
+      (grouped[entry.kind] ||= []).push(entry);
+    });
+    results.innerHTML = '';
+    Object.entries(grouped).forEach(([kind, list]) => {
+      const g = document.createElement('div');
+      g.className = 'search-results__group';
+      g.innerHTML = `<h4>${kind}</h4>`;
+      list.forEach((entry) => {
+        const row = document.createElement('div');
+        row.className = 'search-result';
+        row.innerHTML = `<span class="ico">${entry.icon}</span>
+          <div>
+            <div class="title">${highlight(entry.title, tokens)}</div>
+            <div class="snippet">${highlight(truncate(entry.text, 100), tokens)}</div>
+          </div>`;
+        row.addEventListener('click', () => {
+          activate(entry);
+        });
+        g.appendChild(row);
+      });
+      results.appendChild(g);
+    });
+    const allRows = results.querySelectorAll('.search-result');
+    if (allRows[0]) allRows[0].classList.add('is-active');
+  });
+
+  const activate = (entry) => {
+    close();
+    const tabs = document.querySelectorAll('.tab');
+    const sections = document.querySelectorAll('.section');
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.target === entry.target)));
+    sections.forEach((s) => s.classList.toggle('is-active', s.id === entry.target));
+    if (entry.payload?.jumpKw) {
+      const h = state.hexagrams.find((x) => x.kw === entry.payload.jumpKw);
+      if (h) {
+        showHexDetail(state.trigrams, h);
+        document.getElementById('hex-detail')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      document.getElementById(entry.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  // Initial empty state
+  results.innerHTML = `<div class="search-empty">キーワードを入力してください (例: 対立、決断、二進、ライプニッツ)</div>`;
+}
+
+function highlight(text, tokens) {
+  let escaped = text.replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' })[c]);
+  for (const t of tokens) {
+    if (!t) continue;
+    const re = new RegExp(`(${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    escaped = escaped.replace(re, '<mark>$1</mark>');
+  }
+  return escaped;
+}
+function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s; }
+
 async function main() {
   setupTabs();
   setupYinYang();
+  setupSearch();
   try {
     await loadData();
     setupTrigrams(state.trigrams);

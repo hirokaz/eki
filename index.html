@@ -9,6 +9,11 @@
 </head>
 <body>
   <header class="site-header">
+    <button id="search-trigger" class="search-trigger" type="button" aria-label="検索を開く (Ctrl/Cmd + K)">
+      <span aria-hidden="true">⌕</span>
+      <span class="search-trigger__label">検索</span>
+      <kbd>⌘K</kbd>
+    </button>
     <div class="brand">
       <span class="brand__symbol" aria-hidden="true">☯</span>
       <div class="brand__text">
@@ -430,6 +435,20 @@
       易経そのものが現代科学を記述しているわけではありません。
     </p>
   </footer>
+
+  <!-- Search overlay -->
+  <div id="search-overlay" class="search-overlay" hidden>
+    <div class="search-modal" role="dialog" aria-label="検索">
+      <header class="search-modal__head">
+        <input id="search-input" type="search" placeholder="卦名・概念・場面・人物・学問…" autocomplete="off" />
+        <button id="search-close" type="button" aria-label="閉じる">×</button>
+      </header>
+      <div id="search-results" class="search-results"></div>
+      <footer class="search-modal__foot">
+        <span class="muted">↑↓ で移動 ・ Enter で開く ・ Esc で閉じる</span>
+      </footer>
+    </div>
+  </div>
 
   <script src="js/app.js" type="module"></script>
 </body>
