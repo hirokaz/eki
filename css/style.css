@@ -940,6 +940,47 @@ button { font: inherit; color: inherit; }
 }
 
 /* ============================================================
+   Wuxing (五行)
+   ============================================================ */
+.wuxing-wrap {
+  display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 18px;
+  align-items: start; margin-top: 14px;
+}
+@media (max-width: 720px) { .wuxing-wrap { grid-template-columns: 1fr; } }
+.wuxing-svg { display: flex; justify-content: center; }
+.wuxing-svg svg { width: 100%; max-width: 360px; height: auto; }
+.wuxing-svg .gen { stroke: #5a8d59; }
+.wuxing-svg .res { stroke: #a85b5b; stroke-dasharray: 4 4; }
+.wuxing-svg .arrow-head-gen { fill: #5a8d59; }
+.wuxing-svg .arrow-head-res { fill: #a85b5b; }
+.wuxing-svg .node-bg { fill: var(--bg-2); stroke: var(--gold); }
+.wuxing-svg .node-name { fill: var(--gold); font-family: var(--font-serif); font-size: 22px; text-anchor: middle; }
+.wuxing-svg .node-en   { fill: var(--ink-3); font-size: 10px; text-anchor: middle; font-family: var(--font-mono); }
+
+.wuxing-table { display: grid; gap: 8px; }
+.wuxing-row {
+  display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: center;
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg-2);
+}
+.wuxing-row .name {
+  font-family: var(--font-serif); font-size: 24px; color: var(--gold); text-align: center;
+}
+.wuxing-row .meta {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 4px 12px; font-size: 12px;
+}
+.wuxing-row .meta dt { color: var(--ink-3); display: inline; margin: 0; }
+.wuxing-row .meta dd { color: var(--ink); display: inline; margin: 0 0 0 4px; }
+.wuxing-row .meta .pair { display: flex; gap: 4px; }
+.wuxing-row .trigs { display: flex; gap: 4px; flex-wrap: wrap; }
+.wuxing-row .trigs span {
+  font-size: 18px; color: var(--gold);
+  border: 1px solid var(--line); border-radius: 4px;
+  padding: 0 6px; background: var(--bg-1);
+}
+
+/* ============================================================
    Case studies
    ============================================================ */
 .case-grid {

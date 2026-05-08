@@ -15,6 +15,7 @@ const figures     = read('data/figures.json');
 const disciplines = read('data/disciplines.json');
 const deep        = read('data/hexagrams-deep.json');
 const cases       = read('data/cases.json');
+const wuxing      = read('data/wuxing.json');
 
 const errors = [];
 const log = (msg) => errors.push(msg);
@@ -112,10 +113,29 @@ for (const c of cases) {
   for (const id of c.principles || []) if (!wvIdSet.has(id)) log(`case ${c.id}: principle ${id} not in worldview`);
 }
 
+// wuxing ------------------------------------------------------
+if (!wuxing.elements || wuxing.elements.length !== 5) log(`wuxing: elements count != 5`);
+const wxElIds = new Set(wuxing.elements.map((e) => e.id));
+const wxTrigCovered = new Set();
+const trigIdSet = new Set(trigrams.map((t) => t.id));
+for (const e of wuxing.elements || []) {
+  for (const tid of e.trigrams || []) {
+    if (!trigIdSet.has(tid)) log(`wuxing ${e.id}: trigram ${tid} invalid`);
+    wxTrigCovered.add(tid);
+  }
+}
+if (wxTrigCovered.size !== 8) log(`wuxing: only ${wxTrigCovered.size}/8 trigrams covered`);
+for (const arr of [wuxing.generates, wuxing.restricts]) {
+  for (const e of arr || []) {
+    if (!wxElIds.has(e.from)) log(`wuxing cycle: from ${e.from} invalid`);
+    if (!wxElIds.has(e.to))   log(`wuxing cycle: to ${e.to} invalid`);
+  }
+}
+
 // -------------------------------------------------------------
 if (errors.length) {
   for (const e of errors) console.error('FAIL:', e);
   process.exit(1);
 }
 
-console.log(`OK: trigrams=${trigrams.length}, hexagrams=${hexagrams.length}, deep=${deep.length}, worldview=${worldview.length}, applications=${applications.length}, figures=${figures.length}, disciplines=${disciplines.length}, cases=${cases.length}`);
+console.log(`OK: trigrams=${trigrams.length}, hexagrams=${hexagrams.length}, deep=${deep.length}, worldview=${worldview.length}, applications=${applications.length}, figures=${figures.length}, disciplines=${disciplines.length}, cases=${cases.length}, wuxing=${wuxing.elements.length}`);
