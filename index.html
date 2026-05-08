@@ -218,7 +218,20 @@
     </section>
 
     <section id="applications" class="section" role="tabpanel" aria-label="応用">
-      <p class="section__placeholder">応用セクション (Issue #13 で実装)</p>
+      <h2>応用 ─ 人生・経営・人間関係への実用ガイド</h2>
+      <p class="lead">
+        抽象的な原理を、人生・経営・人間関係の 3 領域に具体化します。
+        各シナリオには「いま自分に投げるべき問い」と関連する卦・原理を配置。
+        判断の道具として日常的に使えるレベルに落とし込みます。
+      </p>
+
+      <div class="seg" role="tablist" aria-label="応用領域" id="app-subtabs">
+        <button class="seg__btn is-on" data-cat="life"           type="button">人生</button>
+        <button class="seg__btn"       data-cat="business"       type="button">経営</button>
+        <button class="seg__btn"       data-cat="relationships"  type="button">人間関係</button>
+      </div>
+
+      <div id="app-cards" class="app-grid" style="margin-top: 16px;"></div>
     </section>
 
     <section id="legacy" class="section" role="tabpanel" aria-label="影響">
