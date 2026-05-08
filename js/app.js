@@ -300,12 +300,241 @@ function playTrigCounter() {
   tick();
 }
 
+// ============================================================
+// Hexagrams matrix + detail
+// ============================================================
+const hexState = {
+  order: 'fuxi',          // 'fuxi' | 'kw'
+  filter: null,           // { type: 'upper'|'lower', id: 0-7 } or null
+  selectedKw: null,
+};
+
+function setupHexagrams(trigrams, hexagrams) {
+  const grid = document.getElementById('hex-grid');
+  const chipsRoot = document.getElementById('hex-filter-chips');
+  if (!grid || !chipsRoot) return;
+  // Filter chips: 16 chips (上卦 8 + 下卦 8) compressed: show 8 trigram chips, click cycles upper/lower/off
+  const trigById = Object.fromEntries(trigrams.map((t) => [t.id, t]));
+  chipsRoot.innerHTML = '';
+  for (let id = 0; id < 8; id++) {
+    const t = trigById[id];
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip';
+    chip.dataset.id = String(id);
+    chip.innerHTML = `<span style="font-size:14px;color:var(--gold);margin-right:4px;">${t.symbol}</span>${t.name_zh}`;
+    chip.title = `${t.name_zh} を含む卦をハイライト`;
+    chip.addEventListener('click', () => {
+      // cycle: off -> upper -> lower -> off
+      if (!hexState.filter || hexState.filter.id !== id) {
+        hexState.filter = { type: 'upper', id };
+        chip.dataset.cycle = 'upper';
+      } else if (hexState.filter.type === 'upper') {
+        hexState.filter = { type: 'lower', id };
+        chip.dataset.cycle = 'lower';
+      } else {
+        hexState.filter = null;
+        chip.dataset.cycle = '';
+      }
+      // Visual: highlight the active chip with a label
+      document.querySelectorAll('.hex-filter .chip').forEach((c) => c.classList.remove('is-on'));
+      if (hexState.filter) {
+        chip.classList.add('is-on');
+        chip.innerHTML = `<span style="font-size:14px;color:inherit;margin-right:4px;">${t.symbol}</span>${t.name_zh}<small style="margin-left:6px;opacity:.8;">${hexState.filter.type === 'upper' ? '上卦' : '下卦'}</small>`;
+      } else {
+        chip.innerHTML = `<span style="font-size:14px;color:var(--gold);margin-right:4px;">${t.symbol}</span>${t.name_zh}`;
+      }
+      renderHexGrid(trigrams, hexagrams);
+    });
+    chipsRoot.appendChild(chip);
+  }
+  document.getElementById('hex-filter-clear').addEventListener('click', () => {
+    hexState.filter = null;
+    document.querySelectorAll('.hex-filter .chip').forEach((c, i) => {
+      c.classList.remove('is-on');
+      c.innerHTML = `<span style="font-size:14px;color:var(--gold);margin-right:4px;">${trigById[i].symbol}</span>${trigById[i].name_zh}`;
+    });
+    renderHexGrid(trigrams, hexagrams);
+  });
+
+  // Order toggle
+  document.querySelectorAll('.hex-controls .seg__btn[data-order]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      hexState.order = btn.dataset.order;
+      document.querySelectorAll('.hex-controls .seg__btn[data-order]').forEach((b) => b.classList.toggle('is-on', b === btn));
+      renderHexGrid(trigrams, hexagrams);
+    });
+  });
+
+  renderHexGrid(trigrams, hexagrams);
+  // Initial detail: KW#1 乾
+  showHexDetail(trigrams, hexagrams.find((h) => h.kw === 1));
+}
+
+function renderHexGrid(trigrams, hexagrams) {
+  const grid = document.getElementById('hex-grid');
+  grid.innerHTML = '';
+  grid.className = `hex-grid is-${hexState.order}`;
+  const trigById = Object.fromEntries(trigrams.map((t) => [t.id, t]));
+  const hexByFuxi = Object.fromEntries(hexagrams.map((h) => [h.fuxi, h]));
+
+  if (hexState.order === 'fuxi') {
+    // Header row: corner + lower trigram headers (id 0..7)
+    const corner = document.createElement('div');
+    corner.className = 'corner';
+    corner.textContent = '↓上 →下';
+    grid.appendChild(corner);
+    for (let lower = 0; lower < 8; lower++) {
+      const h = document.createElement('div');
+      h.className = 'h';
+      h.title = `下卦: ${trigById[lower].name_zh}`;
+      h.textContent = trigById[lower].symbol;
+      grid.appendChild(h);
+    }
+    for (let upper = 0; upper < 8; upper++) {
+      const rowHead = document.createElement('div');
+      rowHead.className = 'h';
+      rowHead.title = `上卦: ${trigById[upper].name_zh}`;
+      rowHead.textContent = trigById[upper].symbol;
+      grid.appendChild(rowHead);
+      for (let lower = 0; lower < 8; lower++) {
+        const fuxi = upper * 8 + lower;
+        grid.appendChild(makeHexCell(hexByFuxi[fuxi], trigrams, hexagrams));
+      }
+    }
+  } else {
+    // KW order
+    [...hexagrams].sort((a, b) => a.kw - b.kw).forEach((h) => {
+      grid.appendChild(makeHexCell(h, trigrams, hexagrams, true));
+    });
+  }
+}
+
+function makeHexCell(h, trigrams, hexagrams, showKw = false) {
+  const cell = document.createElement('button');
+  cell.type = 'button';
+  cell.className = 'cell';
+  cell.dataset.kw = String(h.kw);
+  cell.title = `KW#${h.kw} ${h.name_zh} (${h.name_jp}) ─ ${h.name_en}`;
+  cell.innerHTML = `
+    <span class="sym">${h.symbol}</span>
+    ${showKw ? `<span class="kw-num">#${h.kw}</span>` : ''}
+    <span class="nm">${h.name_zh}</span>
+  `;
+  cell.addEventListener('click', () => showHexDetail(trigrams, h));
+  // Apply filter dim
+  if (hexState.filter) {
+    const f = hexState.filter;
+    const match = (f.type === 'upper' ? h.upper : h.lower) === f.id;
+    cell.classList.toggle('is-dim', !match);
+    cell.classList.toggle('is-on', match);
+  }
+  if (hexState.selectedKw === h.kw) cell.classList.add('is-on');
+  return cell;
+}
+
+function bitsFromHex(h) {
+  // bits[0..2] = lower trigram, bits[3..5] = upper
+  const lower = h.lower, upper = h.upper;
+  return [
+    lower & 1,
+    (lower >> 1) & 1,
+    (lower >> 2) & 1,
+    upper & 1,
+    (upper >> 1) & 1,
+    (upper >> 2) & 1,
+  ];
+}
+
+function showHexDetail(trigrams, h) {
+  const card = document.getElementById('hex-detail');
+  if (!card || !h) return;
+  card.hidden = false;
+  hexState.selectedKw = h.kw;
+  const trigById = Object.fromEntries(trigrams.map((t) => [t.id, t]));
+  const upper = trigById[h.upper];
+  const lower = trigById[h.lower];
+
+  document.getElementById('hex-detail-symbol').textContent = h.symbol;
+  document.getElementById('hex-detail-title').textContent  = `KW #${h.kw} ${h.name_zh} ─ ${h.name_en}`;
+  document.getElementById('hex-detail-sub').textContent    =
+    `読み: ${h.name_jp} ・ Fuxi: ${h.fuxi} (binary ${h.fuxi.toString(2).padStart(6, '0')}) ・ 上卦: ${upper.name_zh}/${upper.symbol} ・ 下卦: ${lower.name_zh}/${lower.symbol}`;
+
+  // 6 yao
+  const yaoRoot = document.getElementById('hex-detail-yao');
+  yaoRoot.innerHTML = '';
+  bitsFromHex(h).forEach((b, i) => {
+    const row = document.createElement('div');
+    row.className = `yao-row ${b ? '' : 'yin'}`;
+    row.title = `第${i + 1}爻 (${b ? '陽' : '陰'})`;
+    yaoRoot.appendChild(row);
+  });
+
+  const grid = document.getElementById('hex-detail-grid');
+  grid.innerHTML = '';
+  const fields = [
+    ['王弼 KW#', String(h.kw)],
+    ['Fuxi 二進値', `${h.fuxi} (${h.fuxi.toString(2).padStart(6, '0')})`],
+    ['上卦', `${upper.name_zh} (${upper.name_en}) ${upper.symbol}`],
+    ['下卦', `${lower.name_zh} (${lower.name_en}) ${lower.symbol}`],
+    ['錯卦 (補数)', describeOpposite(h, hexState_resolve)],
+    ['総卦 (反転)', describeReverse(h, hexState_resolve)],
+  ];
+  for (const [k, v] of fields) {
+    const wrap = document.createElement('div');
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.innerHTML = v;
+    wrap.appendChild(dt); wrap.appendChild(dd);
+    grid.appendChild(wrap);
+  }
+  document.getElementById('hex-detail-summary').textContent = h.summary;
+
+  // Re-render grid to update "is-on" highlight
+  renderHexGrid(state.trigrams, state.hexagrams);
+}
+
+// 錯卦 (cuogua): bitwise complement = 63 - fuxi
+// 綜卦 (zonggua): line-reverse (read upside down). Same as reversing the 6-bit string.
+function describeOpposite(h, resolver) {
+  const fuxi = 63 - h.fuxi;
+  const o = resolver().hexByFuxi[fuxi];
+  return o ? clickableHex(o) : '—';
+}
+function describeReverse(h, resolver) {
+  const bits = bitsFromHex(h);
+  const reversed = bits.slice().reverse(); // [top,...,bottom] → new bottom..top
+  const lower = reversed[0] | (reversed[1] << 1) | (reversed[2] << 2);
+  const upper = reversed[3] | (reversed[4] << 1) | (reversed[5] << 2);
+  const fuxi = upper * 8 + lower;
+  const o = resolver().hexByFuxi[fuxi];
+  return o ? clickableHex(o) : '—';
+}
+function clickableHex(o) {
+  return `<a href="#" data-jump-kw="${o.kw}">${o.symbol} KW#${o.kw} ${o.name_zh}</a>`;
+}
+function hexState_resolve() {
+  return {
+    hexByFuxi: Object.fromEntries(state.hexagrams.map((h) => [h.fuxi, h])),
+  };
+}
+
+// Click-to-jump on detail links
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[data-jump-kw]');
+  if (!a) return;
+  e.preventDefault();
+  const kw = Number(a.dataset.jumpKw);
+  const h = state.hexagrams.find((x) => x.kw === kw);
+  if (h) showHexDetail(state.trigrams, h);
+});
+
 async function main() {
   setupTabs();
   setupYinYang();
   try {
     await loadData();
     setupTrigrams(state.trigrams);
+    setupHexagrams(state.trigrams, state.hexagrams);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);

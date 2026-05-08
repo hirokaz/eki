@@ -171,7 +171,39 @@
       </article>
     </section>
     <section id="hexagrams" class="section" role="tabpanel" aria-label="六十四卦">
-      <p class="section__placeholder">六十四卦セクション (Issue #5 で実装)</p>
+      <h2>六十四卦 ─ 6 ビット = 64 通りの状態空間</h2>
+      <p class="lead">
+        八卦をさらに 2 つ重ねると、ちょうど 2⁶ = 64 通り。これが
+        <strong>六十四卦</strong>であり、易が「すべての変化」を表現する単位です。
+        以下のマトリクスで全 64 状態を一望できます。行=上卦、列=下卦。
+      </p>
+
+      <div class="hex-controls">
+        <div class="seg" role="tablist" aria-label="表示順">
+          <button class="seg__btn is-on" data-order="fuxi" type="button">Fuxi 8×8 (二進)</button>
+          <button class="seg__btn"       data-order="kw"   type="button">王弼 1〜64 (通行順)</button>
+        </div>
+        <div class="hex-filter" aria-label="トリグラムでフィルタ">
+          <span class="muted" style="margin-right: 8px;">フィルタ:</span>
+          <span id="hex-filter-chips"></span>
+          <button id="hex-filter-clear" class="seg__btn" type="button">解除</button>
+        </div>
+      </div>
+
+      <div id="hex-grid" class="hex-grid"></div>
+
+      <article id="hex-detail" class="card detail-card hex-detail" hidden>
+        <header class="detail-card__header">
+          <span id="hex-detail-symbol" class="detail-card__symbol"></span>
+          <div style="flex:1;">
+            <h3 id="hex-detail-title" style="margin:0;"></h3>
+            <p id="hex-detail-sub" class="muted" style="margin:2px 0 0;"></p>
+          </div>
+          <div id="hex-detail-yao" class="hex-detail-yao"></div>
+        </header>
+        <dl id="hex-detail-grid" class="detail-grid"></dl>
+        <p id="hex-detail-summary" style="margin: 12px 0 0; color: var(--ink-2);"></p>
+      </article>
     </section>
     <section id="science" class="section" role="tabpanel" aria-label="自然科学">
       <p class="section__placeholder">自然科学セクション (Issue #6 で実装)</p>
