@@ -89,12 +89,223 @@ function setupYinYang() {
   document.addEventListener('eki:data-loaded', updateReadout, { once: true });
 }
 
+// ============================================================
+// Trigrams section
+// ============================================================
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+function svgEl(tag, attrs = {}, children = []) {
+  const el = document.createElementNS(SVG_NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
+  for (const c of children) el.appendChild(c);
+  return el;
+}
+
+function renderYaoSvg(lines, opts = {}) {
+  // lines: [bottom, middle, top] of 0/1
+  const w = opts.width  || 60;
+  const h = opts.height || 8;
+  const gap = opts.gap || 4;
+  const totalH = h * 3 + gap * 2;
+  const svg = svgEl('svg', {
+    xmlns: SVG_NS, viewBox: `0 0 ${w} ${totalH}`,
+    width: w, height: totalH, role: 'img',
+  });
+  // Render top→bottom for SVG (line index 2 = top → y=0)
+  for (let visualRow = 0; visualRow < 3; visualRow++) {
+    const lineIdx = 2 - visualRow; // top first
+    const y = visualRow * (h + gap);
+    if (lines[lineIdx] === 1) {
+      svg.appendChild(svgEl('rect', { x: 0, y, width: w, height: h, rx: 1.5, fill: 'var(--yang)' }));
+    } else {
+      const seg = w * 0.42;
+      svg.appendChild(svgEl('rect', { x: 0, y, width: seg, height: h, rx: 1.5, fill: 'var(--yin)' }));
+      svg.appendChild(svgEl('rect', { x: w - seg, y, width: seg, height: h, rx: 1.5, fill: 'var(--yin)' }));
+    }
+  }
+  return svg;
+}
+
+function setupTrigrams(trigrams) {
+  const grid = document.getElementById('trig-cards');
+  if (!grid) return;
+  grid.innerHTML = '';
+  // Display order: by binary id ascending (0 → 7)
+  const ordered = [...trigrams].sort((a, b) => a.id - b.id);
+  ordered.forEach((t) => {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'trig-card';
+    card.dataset.id = String(t.id);
+    card.setAttribute('aria-label', `${t.name_zh} (${t.name_en})`);
+
+    const sym = document.createElement('div');
+    sym.className = 'trig-card__symbol';
+    sym.textContent = t.symbol;
+    card.appendChild(sym);
+
+    const yao = renderYaoSvg(t.lines, { width: 60, height: 7, gap: 5 });
+    card.appendChild(yao);
+
+    const name = document.createElement('div');
+    name.className = 'trig-card__name';
+    name.textContent = t.name_zh;
+    card.appendChild(name);
+
+    const nat = document.createElement('div');
+    nat.className = 'trig-card__nat';
+    nat.textContent = `${t.natural} / ${t.name_en}`;
+    card.appendChild(nat);
+
+    const bin = document.createElement('div');
+    bin.className = 'trig-card__bin';
+    bin.textContent = `bin ${t.binary} · dec ${t.id}`;
+    card.appendChild(bin);
+
+    card.addEventListener('click', () => showTrigDetail(t));
+    grid.appendChild(card);
+  });
+
+  setupBagua(trigrams);
+  setupTrigCounter(trigrams);
+  // Auto-show first trigram (Earth = 0) detail
+  showTrigDetail(ordered[0]);
+}
+
+function showTrigDetail(t) {
+  const card = document.getElementById('trig-detail');
+  if (!card) return;
+  card.hidden = false;
+  document.getElementById('trig-detail-symbol').textContent = t.symbol;
+  document.getElementById('trig-detail-title').textContent  = `${t.name_zh} ─ ${t.name_en}`;
+  document.getElementById('trig-detail-sub').textContent    = `読み: ${t.name_jp} ・ 二進: ${t.binary} (${t.id}) ・ 自然象: ${t.natural}`;
+  const grid = document.getElementById('trig-detail-grid');
+  grid.innerHTML = '';
+  const fields = [
+    ['属性', t.attribute],
+    ['家族', t.family],
+    ['方位', t.direction],
+    ['季節', t.season],
+    ['身体', t.body],
+    ['爻配列', t.lines.slice().reverse().map((b) => b ? '─' : '⚋').join(' / ')],
+  ];
+  for (const [k, v] of fields) {
+    const wrap = document.createElement('div');
+    const dt = document.createElement('dt'); dt.textContent = k;
+    const dd = document.createElement('dd'); dd.textContent = v;
+    wrap.appendChild(dt); wrap.appendChild(dd);
+    grid.appendChild(wrap);
+  }
+  document.getElementById('trig-detail-summary').textContent = t.summary;
+
+  // Highlight selected card
+  document.querySelectorAll('.trig-card').forEach((c) => {
+    c.classList.toggle('is-selected', Number(c.dataset.id) === t.id);
+  });
+}
+
+// 先天八卦 (Fuxi) 円配置: 上から時計回りに 7,3,5,1,0,4,2,6
+function setupBagua(trigrams) {
+  const wrap = document.getElementById('bagua-svg');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  const order = [7, 3, 5, 1, 0, 4, 2, 6]; // clockwise from top
+  const byId = Object.fromEntries(trigrams.map((t) => [t.id, t]));
+
+  const size = 360;
+  const cx = 0, cy = 0;
+  const R = 120;
+  const svg = svgEl('svg', {
+    xmlns: SVG_NS, viewBox: `${-size/2} ${-size/2} ${size} ${size}`,
+    width: '100%', height: '100%',
+  });
+
+  // Center taiji-like circle
+  svg.appendChild(svgEl('circle', { cx: 0, cy: 0, r: 30, fill: 'none', stroke: 'var(--gold)', 'stroke-width': 1, opacity: 0.5 }));
+  svg.appendChild(svgEl('circle', { cx: 0, cy: 0, r: R + 30, fill: 'none', stroke: 'var(--line)', 'stroke-width': 1 }));
+
+  order.forEach((id, idx) => {
+    const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / 8; // start at top
+    const x = cx + R * Math.cos(angle);
+    const y = cy + R * Math.sin(angle);
+    const t = byId[id];
+    const g = svgEl('g', { transform: `translate(${x},${y})`, class: 'bagua-node' });
+
+    // Yao lines (small)
+    const yaoG = svgEl('g', { transform: 'translate(-26, -36)' });
+    const lh = 4, gap = 3, lw = 52;
+    for (let v = 0; v < 3; v++) {
+      const li = 2 - v;
+      const yy = v * (lh + gap);
+      if (t.lines[li] === 1) {
+        yaoG.appendChild(svgEl('rect', { x: 0, y: yy, width: lw, height: lh, rx: 1, fill: 'var(--gold)' }));
+      } else {
+        yaoG.appendChild(svgEl('rect', { x: 0, y: yy, width: lw * 0.42, height: lh, rx: 1, fill: 'var(--yin)' }));
+        yaoG.appendChild(svgEl('rect', { x: lw * 0.58, y: yy, width: lw * 0.42, height: lh, rx: 1, fill: 'var(--yin)' }));
+      }
+    }
+    g.appendChild(yaoG);
+
+    const nameTxt = svgEl('text', { x: 0, y: 18, 'text-anchor': 'middle', class: 'bg-name' });
+    nameTxt.textContent = t.name_zh;
+    g.appendChild(nameTxt);
+
+    const binTxt = svgEl('text', { x: 0, y: 32, 'text-anchor': 'middle', class: 'bg-bin' });
+    binTxt.textContent = `${t.binary} (${t.id})`;
+    g.appendChild(binTxt);
+
+    // Connection line to opposite (drawn once: only when idx < 4)
+    if (idx < 4) {
+      const oppIdx = (idx + 4) % 8;
+      const a2 = -Math.PI / 2 + (oppIdx * 2 * Math.PI) / 8;
+      const x2 = R * Math.cos(a2), y2 = R * Math.sin(a2);
+      svg.insertBefore(svgEl('line', { x1: x, y1: y, x2, y2, class: 'bagua-line', 'stroke-dasharray': '2 4', opacity: 0.35 }), svg.firstChild);
+    }
+
+    svg.appendChild(g);
+  });
+
+  wrap.appendChild(svg);
+}
+
+function setupTrigCounter(trigrams) {
+  const root = document.getElementById('trig-counter');
+  if (!root) return;
+  root.innerHTML = '';
+  const byId = Object.fromEntries(trigrams.map((t) => [t.id, t]));
+  for (let i = 0; i < 8; i++) {
+    const t = byId[i];
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.id = String(i);
+    cell.innerHTML = `<span class="sym">${t.symbol}</span><span class="num">${t.binary}</span><span>${t.name_zh}</span>`;
+    root.appendChild(cell);
+  }
+  const btn = document.getElementById('trig-counter-play');
+  if (btn) btn.addEventListener('click', () => playTrigCounter());
+}
+
+function playTrigCounter() {
+  const cells = document.querySelectorAll('#trig-counter .cell');
+  cells.forEach((c) => c.classList.remove('is-active'));
+  let i = 0;
+  const tick = () => {
+    cells.forEach((c) => c.classList.remove('is-active'));
+    if (i < cells.length) {
+      cells[i].classList.add('is-active');
+      i += 1;
+      setTimeout(tick, 320);
+    }
+  };
+  tick();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
   try {
     await loadData();
-    // Hook for section renderers (added in later issues)
+    setupTrigrams(state.trigrams);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);
