@@ -9,7 +9,7 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
@@ -18,6 +18,7 @@ async function loadData() {
     fetch('data/disciplines.json').then((r) => r.json()),
     fetch('data/diagnose.json').then((r) => r.json()),
     fetch('data/curriculum.json').then((r) => r.json()),
+    fetch('data/sequence.json').then((r) => r.json()),
   ]);
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
@@ -27,6 +28,7 @@ async function loadData() {
   state.disciplines = disciplines;
   state.diagnose = diagnose;
   state.curriculum = curriculum;
+  state.sequence = sequence;
 }
 
 function setupTabs() {
@@ -1395,6 +1397,64 @@ function setupLearn(curriculum) {
   render();
 }
 
+// ============================================================
+// Sequence story
+// ============================================================
+function setupStory(sequence, hexagrams) {
+  const intro = document.getElementById('story-intro');
+  const card = document.getElementById('story-card');
+  const bar  = document.getElementById('story-bar');
+  const stepEl = document.getElementById('story-step');
+  if (!card) return;
+  intro.textContent = sequence.intro;
+  const transitions = sequence.transitions;
+  const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+  let idx = 0;
+
+  const render = () => {
+    const t = transitions[idx];
+    const from = hexByKw[t.from], to = hexByKw[t.to];
+    bar.style.width = `${((idx + 1) / transitions.length) * 100}%`;
+    stepEl.textContent = `${idx + 1} / ${transitions.length}`;
+    card.innerHTML = `
+      <button type="button" class="pane" data-jump-kw="${from.kw}">
+        <span class="sym">${from.symbol}</span>
+        <span class="nm">${from.name_zh}</span>
+        <span class="meta">KW#${from.kw} ・ ${from.name_jp}</span>
+        <span class="summary">${from.summary}</span>
+      </button>
+      <span class="story-arrow" aria-hidden="true">→</span>
+      <button type="button" class="pane" data-jump-kw="${to.kw}">
+        <span class="sym">${to.symbol}</span>
+        <span class="nm">${to.name_zh}</span>
+        <span class="meta">KW#${to.kw} ・ ${to.name_jp}</span>
+        <span class="summary">${to.summary}</span>
+      </button>
+      <div class="story-reason">${t.reason}</div>
+    `;
+  };
+
+  document.getElementById('story-prev').addEventListener('click', () => {
+    idx = (idx - 1 + transitions.length) % transitions.length;
+    render();
+  });
+  document.getElementById('story-next').addEventListener('click', () => {
+    idx = (idx + 1) % transitions.length;
+    render();
+  });
+  document.getElementById('story-reset').addEventListener('click', () => { idx = 0; render(); });
+
+  // Keyboard navigation when story tab is active
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('story').classList.contains('is-active')) {
+      if (e.key === 'ArrowLeft') document.getElementById('story-prev').click();
+      if (e.key === 'ArrowRight') document.getElementById('story-next').click();
+    }
+  });
+
+  render();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -1410,6 +1470,7 @@ async function main() {
     setupDiagnose(state.diagnose, state.hexagrams, state.worldview);
     setupJournal(state.hexagrams, state.worldview);
     setupLearn(state.curriculum);
+    setupStory(state.sequence, state.hexagrams);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);

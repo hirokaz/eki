@@ -27,6 +27,7 @@
       <button class="tab" role="tab" aria-selected="false" data-target="yinyang">陰陽</button>
       <button class="tab" role="tab" aria-selected="false" data-target="trigrams">八卦</button>
       <button class="tab" role="tab" aria-selected="false" data-target="hexagrams">六十四卦</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="story">物語</button>
       <button class="tab" role="tab" aria-selected="false" data-target="diagnose">自己診断</button>
       <button class="tab" role="tab" aria-selected="false" data-target="journal">ジャーナル</button>
       <button class="tab" role="tab" aria-selected="false" data-target="worldview">見方</button>
@@ -226,6 +227,24 @@
         <p id="hex-detail-summary" style="margin: 12px 0 0; color: var(--ink-2);"></p>
       </article>
     </section>
+    <section id="story" class="section" role="tabpanel" aria-label="物語">
+      <h2>序卦伝の物語 ─ 64 卦の状態遷移を順に辿る</h2>
+      <p class="lead" id="story-intro"></p>
+
+      <div class="story-progress">
+        <div class="story-progress__bar"><div id="story-bar"></div></div>
+        <span id="story-step" class="story-progress__txt">1 / 63</span>
+      </div>
+
+      <article id="story-card" class="card story-card"></article>
+
+      <div class="story-controls">
+        <button id="story-prev" type="button" class="btn">← 前へ</button>
+        <button id="story-next" type="button" class="btn">次へ →</button>
+        <button id="story-reset" type="button" class="seg__btn">最初から</button>
+      </div>
+    </section>
+
     <section id="diagnose" class="section" role="tabpanel" aria-label="自己診断">
       <h2>自己診断ウィザード ─ あなたの今を易のフレームで読む</h2>
       <p class="lead" id="diagnose-intro">
