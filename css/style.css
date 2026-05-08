@@ -474,6 +474,105 @@ button { font: inherit; color: inherit; }
 }
 .legacy-card .footer a:hover { color: var(--gold); border-color: var(--gold); }
 
+/* ============================================================
+   Science section
+   ============================================================ */
+.sci-block + .sci-block { margin-top: 16px; }
+.sci-block h3 {
+  margin: 0 0 12px;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 18px; letter-spacing: .04em;
+}
+
+.sci-leibniz {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  background: var(--line);
+  border-radius: 8px;
+  padding: 2px;
+}
+.sci-leibniz .lcell {
+  background: var(--bg-1); padding: 6px 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  font-size: 10px; color: var(--ink-3);
+}
+.sci-leibniz .lcell .sym { font-size: 18px; color: var(--gold); }
+.sci-leibniz .lcell .bin { font-family: var(--font-mono); }
+.sci-leibniz .lcell .kw  { font-family: var(--font-mono); color: var(--ink-2); }
+
+.sci-formula {
+  font-family: var(--font-mono);
+  font-size: 22px; color: var(--gold);
+  background: rgba(200,169,106,.06);
+  border-left: 3px solid var(--gold);
+  padding: 12px 16px; margin: 0;
+  border-radius: 0 6px 6px 0;
+}
+.sci-info-table { width: 100%; border-collapse: collapse; }
+.sci-info-table th, .sci-info-table td {
+  padding: 6px 10px; border-bottom: 1px solid var(--line);
+  font-size: 13px; text-align: left;
+}
+.sci-info-table th { color: var(--gold); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.sci-info-table td:nth-child(2), .sci-info-table td:nth-child(3) {
+  font-family: var(--font-mono); color: var(--ink-2);
+}
+
+.sci-dna-grid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  margin-top: 14px;
+}
+.sci-dna-cell {
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sci-dna-num { font-family: var(--font-mono); color: var(--gold); font-size: 22px; }
+.sci-dna-name { color: var(--ink); font-size: 14px; }
+.sci-dna-mate { color: var(--ink-3); font-size: 12px; }
+
+.sci-hamming-controls {
+  display: flex; gap: 8px; align-items: center; margin: 0 0 10px;
+}
+.sci-hamming-controls label { color: var(--ink-2); font-size: 13px; }
+.sci-hamming-controls select {
+  background: var(--bg-2); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 10px; font-size: 13px;
+  min-width: 220px;
+}
+
+.sci-hamming {
+  display: grid; gap: 8px;
+  grid-template-columns: 1fr;
+}
+.sci-hamming__row {
+  display: grid; grid-template-columns: minmax(80px, 0.4fr) repeat(6, 1fr); gap: 6px;
+  align-items: center;
+}
+.sci-hamming__base, .sci-hamming__neighbor {
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 4px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.sci-hamming__base { background: rgba(200,169,106,.08); border-color: var(--gold); cursor: default; }
+.sci-hamming__neighbor:hover { border-color: var(--gold); background: rgba(200,169,106,.06); }
+.sci-hamming .sym { font-size: 22px; color: var(--gold); }
+.sci-hamming .lbl { font-size: 11px; color: var(--ink-3); font-family: var(--font-mono); }
+.sci-hamming .nm  { font-size: 12px; color: var(--ink-2); }
+
+.sci-states-table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+.sci-states-table th, .sci-states-table td {
+  padding: 8px 12px; border-bottom: 1px solid var(--line);
+  font-size: 13px; text-align: left;
+}
+.sci-states-table th { color: var(--gold); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.sci-states-table .sym { font-size: 22px; color: var(--gold); margin-right: 6px; vertical-align: middle; }
+
 /* Confidence level chips */
 .lvl {
   display: inline-block;
