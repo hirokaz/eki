@@ -1,0 +1,179 @@
+/* ============================================================
+   Design tokens
+   ============================================================ */
+:root {
+  /* Palette: 墨 (sumi) と 金 (kin) と 朱 (shu) */
+  --bg-0:   #0d0e12;        /* deepest background (墨) */
+  --bg-1:   #15171c;        /* panel background */
+  --bg-2:   #1d2128;        /* elevated panel */
+  --bg-3:   #262b34;        /* hover */
+  --line:   #2f3540;        /* dividers */
+  --ink:    #e8e6df;        /* primary text (paper-white) */
+  --ink-2:  #b3b0a6;        /* secondary text */
+  --ink-3:  #7c7a72;        /* muted */
+  --gold:   #c8a96a;        /* accent (金) */
+  --gold-2: #e2c485;        /* accent hover */
+  --shu:    #c0392b;        /* 朱 (vermillion) for yang/active */
+  --yin:    #6b86b3;        /* 群青 (gunjō) for yin */
+  --yang:   #c8a96a;        /* 金 for yang lines */
+
+  /* Type */
+  --font-serif: "Noto Serif JP", "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "Songti SC", serif;
+  --font-sans:  "Noto Sans JP", "Hiragino Sans", "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+  --font-mono:  ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* Layout */
+  --maxw: 1100px;
+  --radius: 10px;
+  --gap: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,.45);
+}
+
+/* ============================================================
+   Reset / base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(200,169,106,.06), transparent 60%),
+    radial-gradient(900px 500px at 110% 20%, rgba(192,57,43,.05), transparent 60%),
+    var(--bg-0);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 600; letter-spacing: .02em; }
+a { color: var(--gold); text-decoration: none; border-bottom: 1px dotted rgba(200,169,106,.4); }
+a:hover { color: var(--gold-2); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* ============================================================
+   Header / Nav
+   ============================================================ */
+.site-header {
+  position: sticky; top: 0; z-index: 10;
+  padding: 18px 24px 0;
+  background: linear-gradient(180deg, rgba(13,14,18,.96), rgba(13,14,18,.78));
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 16px; max-width: var(--maxw); margin: 0 auto; }
+.brand__symbol {
+  font-size: 44px; line-height: 1;
+  color: var(--gold);
+  text-shadow: 0 0 18px rgba(200,169,106,.35);
+}
+.brand__text h1 {
+  margin: 0;
+  font-size: clamp(20px, 2.6vw, 28px);
+  letter-spacing: .08em;
+}
+.brand__text .subtitle {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: .6em;
+  color: var(--ink-2);
+  margin-left: .6em;
+  letter-spacing: .04em;
+}
+.brand__text .tagline {
+  margin: 4px 0 0; color: var(--ink-3); font-size: 13px; letter-spacing: .08em;
+}
+
+.tabs {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  max-width: var(--maxw); margin: 14px auto 0;
+  padding-bottom: 0;
+}
+.tab {
+  appearance: none; border: 0; background: transparent;
+  color: var(--ink-2);
+  padding: 10px 16px; border-radius: 8px 8px 0 0;
+  cursor: pointer; font-size: 14px; letter-spacing: .12em;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+.tab:hover { color: var(--ink); background: rgba(255,255,255,.03); }
+.tab[aria-selected="true"] {
+  color: var(--gold);
+  border-bottom-color: var(--gold);
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+.content {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+.section { display: none; animation: fade .25s ease; }
+.section.is-active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.section h2 {
+  margin: 0 0 8px;
+  font-size: clamp(22px, 3vw, 32px);
+  letter-spacing: .08em;
+}
+.section h2::before {
+  content: ""; display: inline-block;
+  width: 12px; height: 12px; margin-right: 12px;
+  background: var(--gold); transform: rotate(45deg) translateY(-2px);
+}
+.section .lead {
+  color: var(--ink-2); font-size: 16px; max-width: 720px;
+  margin: 0 0 24px;
+}
+.section__placeholder {
+  padding: 24px; border: 1px dashed var(--line); border-radius: var(--radius);
+  color: var(--ink-3); text-align: center; font-style: italic;
+}
+
+/* Common card */
+.card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.card + .card { margin-top: 16px; }
+.grid { display: grid; gap: var(--gap); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.grid-3 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+/* Yao (爻) line styling — used by trigrams/hexagrams */
+.yao-stack { display: inline-flex; flex-direction: column-reverse; gap: 4px; }
+.yao { width: 60px; height: 8px; border-radius: 2px; background: var(--yang); }
+.yao.yin {
+  background: linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
+}
+
+/* Footer */
+.site-footer {
+  border-top: 1px solid var(--line);
+  padding: 24px; text-align: center;
+  color: var(--ink-3); font-size: 13px;
+}
+.site-footer .muted { color: var(--ink-3); margin-top: 6px; font-size: 12px; }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 640px) {
+  .site-header { padding: 14px 16px 0; }
+  .content { padding: 24px 16px 48px; }
+  .brand { gap: 12px; }
+  .brand__symbol { font-size: 34px; }
+  .tab { padding: 8px 12px; font-size: 13px; }
+}
+
+/* ============================================================
+   Reduced motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

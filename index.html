@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>易経 ─ 自然科学としての視覚化</title>
+  <meta name="description" content="易経(I Ching)を陰陽の二進符号、八卦の組合せ、六十四卦の状態空間として、自然科学の言葉で再解釈するインタラクティブな可視化。" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand__symbol" aria-hidden="true">☯</span>
+      <div class="brand__text">
+        <h1>易経 <span class="subtitle">自然科学としての視覚化</span></h1>
+        <p class="tagline">陰陽 ─ 二進符号 ─ 八卦 ─ 六十四卦 ─ 状態空間</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="セクション切替">
+      <button class="tab" role="tab" aria-selected="true"  data-target="overview">概要</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="yinyang">陰陽</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="trigrams">八卦</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="hexagrams">六十四卦</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="science">自然科学</button>
+    </nav>
+  </header>
+
+  <main class="content">
+    <section id="overview" class="section is-active" role="tabpanel" aria-label="概要">
+      <p class="section__placeholder">概要セクション (Issue #3 で実装)</p>
+    </section>
+    <section id="yinyang" class="section" role="tabpanel" aria-label="陰陽">
+      <p class="section__placeholder">陰陽セクション (Issue #3 で実装)</p>
+    </section>
+    <section id="trigrams" class="section" role="tabpanel" aria-label="八卦">
+      <p class="section__placeholder">八卦セクション (Issue #4 で実装)</p>
+    </section>
+    <section id="hexagrams" class="section" role="tabpanel" aria-label="六十四卦">
+      <p class="section__placeholder">六十四卦セクション (Issue #5 で実装)</p>
+    </section>
+    <section id="science" class="section" role="tabpanel" aria-label="自然科学">
+      <p class="section__placeholder">自然科学セクション (Issue #6 で実装)</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>
+      データ典拠: <a href="data/trigrams.json">trigrams.json</a> /
+      <a href="data/hexagrams.json">hexagrams.json</a> ・
+      <a href="docs/data-schema.md">スキーマ</a>
+    </p>
+    <p class="muted">
+      本サイトでの自然科学的対応はあくまで構造的な並行(アナロジー)であり、
+      易経そのものが現代科学を記述しているわけではありません。
+    </p>
+  </footer>
+
+  <script src="js/app.js" type="module"></script>
+</body>
+</html>
