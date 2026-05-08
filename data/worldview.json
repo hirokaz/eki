@@ -1,6 +1,6 @@
 [
   {
-    "id": "henneki",
+    "id": "hen_eki",
     "name_zh": "変易",
     "name_jp": "へんえき",
     "name_en": "Constant Change",
@@ -22,7 +22,7 @@
     "source": "繋辞伝"
   },
   {
-    "id": "kanneki",
+    "id": "kan_eki",
     "name_zh": "簡易",
     "name_jp": "かんえき",
     "name_en": "Simplicity Underlies",
@@ -44,7 +44,7 @@
     "source": "繋辞伝・象伝"
   },
   {
-    "id": "buksyoku_hihan",
+    "id": "bukkyoku_hippan",
     "name_zh": "物極必反",
     "name_jp": "ぶつきょくひつはん",
     "name_en": "Extremes Invert",
@@ -88,7 +88,7 @@
     "source": "彖伝・小象伝"
   },
   {
-    "id": "jokar",
+    "id": "joka",
     "name_zh": "序卦",
     "name_jp": "じょか",
     "name_en": "Sequential Order",

@@ -10,7 +10,7 @@
     "domain": "易学の原典",
     "level": "tradition",
     "related_kw": [3, 36],
-    "principles": ["jokar", "jichu"]
+    "principles": ["joka", "jichu"]
   },
   {
     "id": "confucius",
@@ -62,7 +62,7 @@
     "domain": "古典文献学",
     "level": "fact",
     "related_kw": [4],
-    "principles": ["fueki", "kanneki"]
+    "principles": ["fueki", "kan_eki"]
   },
   {
     "id": "leibniz",
@@ -75,7 +75,7 @@
     "domain": "数学・哲学",
     "level": "fact",
     "related_kw": [1, 2, 63, 64],
-    "principles": ["kanneki", "tairitsu_souho"]
+    "principles": ["kan_eki", "tairitsu_souho"]
   },
   {
     "id": "bohr",
@@ -88,7 +88,7 @@
     "domain": "量子物理学",
     "level": "fact",
     "related_kw": [11, 63, 64],
-    "principles": ["tairitsu_souho", "buksyoku_hihan"]
+    "principles": ["tairitsu_souho", "bukkyoku_hippan"]
   },
   {
     "id": "jung",
@@ -114,7 +114,7 @@
     "domain": "現代音楽",
     "level": "fact",
     "related_kw": [49, 17],
-    "principles": ["henneki", "jichu"]
+    "principles": ["hen_eki", "jichu"]
   },
   {
     "id": "minakata",
@@ -127,6 +127,6 @@
     "domain": "民俗学・博物学",
     "level": "interpretation",
     "related_kw": [50],
-    "principles": ["kanneki", "fueki"]
+    "principles": ["kan_eki", "fueki"]
   }
 ]

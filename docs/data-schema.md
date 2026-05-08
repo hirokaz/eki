@@ -69,6 +69,32 @@
 
 UI では `loadData` 時に KW で結合して `hexagrams[i].deep` として参照される。
 
+## ID 命名規則
+
+文字列 `id` フィールドは以下の規則で揺れなく命名する:
+
+- 小文字 ASCII のみ使用
+- 単語区切りは `_` (snake_case)
+- 日本語のローマ字化はヘボン式準拠、ただしマクロン (ō, ū) は使わず
+  - 長音は素直な綴り (`ouhi`, `chusei`, `souho`)
+- 促音 (っ) は子音重ね (`bukkyoku`, `hippan`)
+- 撥音 (ん) は `n`、母音前の境界は `_` で明示 (`hen_eki`, `kan_eki`)
+- 不要な末尾文字を残さない (`jokar` ✗ → `joka` ✓)
+
+### 既存 ID 一覧 (worldview)
+
+| id | 漢字 | 読み |
+|----|------|------|
+| `hen_eki` | 変易 | へんえき |
+| `fueki` | 不易 | ふえき |
+| `kan_eki` | 簡易 | かんえき |
+| `tairitsu_souho` | 対立相補 | たいりつそうほ |
+| `bukkyoku_hippan` | 物極必反 | ぶっきょくひっぱん |
+| `jichu` | 時中 | じちゅう |
+| `chusei` | 中正 | ちゅうせい |
+| `ouhi` | 応比 | おうひ |
+| `joka` | 序卦 | じょか |
+
 ## `data/worldview.json`
 
 「易学的な見方」9 原理の配列。
