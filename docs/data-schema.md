@@ -52,6 +52,26 @@
 3. `symbol == chr(0x4DC0 + kw - 1)`
 4. `upper, lower ∈ [0, 7]`
 
+## `data/worldview.json`
+
+「易学的な見方」9 原理の配列。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `id` | string | ✓ | 安定した英字キー (`henneki`, `fueki` 等) |
+| `name_zh` | string | ✓ | 漢字名 (変易・不易・簡易…) |
+| `name_jp` | string | ✓ | 平仮名読み |
+| `name_en` | string | ✓ | 英訳 |
+| `concept` | string | ✓ | 1 行の核となる主張 |
+| `summary` | string | ✓ | 100 字前後の解説 |
+| `related_kw` | int[] | ✓ | この原理を体現する卦の KW番号配列 (`hexagrams.json` に存在すること) |
+| `practice` | string | ✓ | 日常への応用ヒント |
+| `source` | string | ✓ | 出典 (繋辞伝・序卦伝など) |
+
+### 不変条件
+- 全ての `related_kw` は `data/hexagrams.json` の `kw` に存在する
+- `id` はファイル内で一意
+
 ## データ追加の流れ
 
 1. `data/<topic>` ブランチを作成

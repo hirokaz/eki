@@ -361,6 +361,59 @@ button { font: inherit; color: inherit; }
   background: linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
 }
 
+/* ============================================================
+   Worldview / Applications / Legacy — shared
+   ============================================================ */
+.wv-grid, .app-grid, .legacy-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.wv-card, .app-card, .legacy-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+  transition: border-color .15s, transform .15s;
+}
+.wv-card:hover, .app-card:hover, .legacy-card:hover {
+  border-color: var(--gold); transform: translateY(-2px);
+}
+.wv-card__title {
+  font-family: var(--font-serif);
+  font-size: 22px; letter-spacing: .12em; color: var(--gold);
+  margin: 0;
+}
+.wv-card__title small {
+  font-family: var(--font-sans); font-size: 12px; color: var(--ink-3);
+  letter-spacing: .08em; margin-left: 8px;
+}
+.wv-card__concept {
+  color: var(--ink-2); font-size: 13px;
+  letter-spacing: .04em; margin: 0;
+}
+.wv-card__summary { color: var(--ink); font-size: 14px; margin: 0; }
+.wv-card__practice {
+  background: rgba(200,169,106,.06); border-left: 3px solid var(--gold);
+  padding: 8px 12px; border-radius: 0 6px 6px 0;
+  color: var(--ink-2); font-size: 13px;
+}
+.wv-card__practice strong { color: var(--gold); margin-right: 6px; }
+.wv-card__related {
+  display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+  font-size: 12px; color: var(--ink-3);
+}
+.wv-card__related a {
+  border: 1px solid var(--line); background: var(--bg-2);
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 12px; color: var(--ink-2);
+  text-decoration: none;
+}
+.wv-card__related a:hover { color: var(--gold); border-color: var(--gold); }
+.wv-card__src {
+  font-size: 11px; color: var(--ink-3); margin: 0;
+  letter-spacing: .08em;
+}
+
 /* Generic bullets */
 .bullets { padding-left: 1.2em; margin: 0; color: var(--ink-2); }
 .bullets li { margin-bottom: 4px; }
