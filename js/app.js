@@ -1795,6 +1795,163 @@ function setupWuxing(wuxing, trigrams) {
   });
 }
 
+// ============================================================
+// Coin toss (擲銭法 / structure-experience random generator)
+// ============================================================
+function castOneThrow() {
+  // 3 coins, heads=3, tails=2
+  let sum = 0;
+  const faces = [];
+  for (let i = 0; i < 3; i++) {
+    const isHeads = Math.random() < 0.5;
+    faces.push(isHeads ? 'heads' : 'tails');
+    sum += isHeads ? 3 : 2;
+  }
+  return { sum, faces };
+}
+
+function classify(sum) {
+  // 6: old-yin (changing) → bit=0 now, 1 in transformed
+  // 7: young-yang (stable) → bit=1
+  // 8: young-yin (stable) → bit=0
+  // 9: old-yang (changing) → bit=1 now, 0 in transformed
+  switch (sum) {
+    case 6: return { bit: 0, transformed: 1, type: '老陰', changing: true };
+    case 7: return { bit: 1, transformed: 1, type: '少陽', changing: false };
+    case 8: return { bit: 0, transformed: 0, type: '少陰', changing: false };
+    case 9: return { bit: 1, transformed: 0, type: '老陽', changing: true };
+  }
+}
+
+function bitsToHexLookup(bits, hexagrams) {
+  const lower = bits[0] | (bits[1] << 1) | (bits[2] << 2);
+  const upper = bits[3] | (bits[4] << 1) | (bits[5] << 2);
+  const fuxi = upper * 8 + lower;
+  return hexagrams.find((h) => h.fuxi === fuxi);
+}
+
+function setupCoins(hexagrams, worldview) {
+  const root = document.getElementById('coins-throws');
+  const result = document.getElementById('coins-result');
+  const castBtn = document.getElementById('coins-cast');
+  const stepBtn = document.getElementById('coins-step');
+  const resetBtn = document.getElementById('coins-reset');
+  if (!root || !castBtn) return;
+
+  const throws = []; // each: { sum, faces, bit, transformed, type, changing }
+
+  const renderThrows = () => {
+    root.innerHTML = '';
+    if (throws.length === 0) {
+      root.innerHTML = '<div class="muted" style="text-align:center;padding:40px 16px;">「投げる」ボタンを押して始めてください</div>';
+      return;
+    }
+    throws.forEach((t, i) => {
+      const row = document.createElement('div');
+      row.className = `coins-throw ${t.changing ? 'is-changing' : ''}`;
+      const coins = t.faces.map((f) => `<span class="coin ${f}">${f === 'heads' ? '陽' : '陰'}</span>`).join('');
+      row.innerHTML = `
+        <span class="lbl">第${i + 1}爻</span>
+        <span class="face">${coins} <span style="margin-left:6px;color:var(--ink-3);">=${t.sum}</span></span>
+        <span class="yao">
+          <span class="bar ${t.bit ? 'yang' : 'yin'}"></span>
+          <span>${t.type}${t.changing ? ' <span class="change">変爻</span>' : ''}</span>
+        </span>
+      `;
+      root.appendChild(row);
+    });
+  };
+
+  const renderResult = () => {
+    if (throws.length < 6) { result.hidden = true; return; }
+    const bits     = throws.map((t) => t.bit);
+    const transBits = throws.map((t) => t.transformed);
+    const original = bitsToHexLookup(bits, hexagrams);
+    const transformed = bitsToHexLookup(transBits, hexagrams);
+    const hasChanges = throws.some((t) => t.changing);
+    const sameAsOriginal = original && transformed && original.kw === transformed.kw;
+
+    result.hidden = false;
+    result.innerHTML = `
+      <h3>本卦${hasChanges && !sameAsOriginal ? ' → 之卦' : ''}</h3>
+      <div class="coins-result__hex">
+        <a href="#hexagrams/${original.kw}" class="pane" data-jump-kw="${original.kw}">
+          <span class="sym">${original.symbol}</span>
+          <span class="nm">${original.name_zh}</span>
+          <span class="meta">本卦 ・ KW#${original.kw}</span>
+        </a>
+        ${hasChanges && !sameAsOriginal ? `
+          <span class="arrow">→</span>
+          <a href="#hexagrams/${transformed.kw}" class="pane" data-jump-kw="${transformed.kw}">
+            <span class="sym">${transformed.symbol}</span>
+            <span class="nm">${transformed.name_zh}</span>
+            <span class="meta">之卦 ・ KW#${transformed.kw}</span>
+          </a>
+        ` : (hasChanges ? '<span class="arrow"></span><div></div>' : '<div></div><div></div>')}
+      </div>
+      <p class="muted" style="font-size:13px;margin:0;">
+        変爻数: <strong style="color:var(--gold);">${throws.filter((t) => t.changing).length}</strong> /6 ・
+        ${hasChanges
+          ? '変爻が示すのは「今の状態が次の状態へ移ろうとしている方向」です。'
+          : '変爻なし: 状態は当面そのまま動かないことを示唆します(構造的に)。'}
+      </p>
+      <div class="save">
+        <button id="coins-save" type="button" class="btn">📖 ジャーナルに残す</button>
+        <button id="coins-again" type="button" class="seg__btn">もう一度</button>
+      </div>
+    `;
+    document.getElementById('coins-again')?.addEventListener('click', () => {
+      throws.length = 0; renderThrows(); result.hidden = true;
+    });
+    document.getElementById('coins-save')?.addEventListener('click', () => {
+      const snap = {
+        ts: Date.now(),
+        type: 'coins',
+        title: `擲銭: ${original.name_zh}${hasChanges && !sameAsOriginal ? ' → ' + transformed.name_zh : ''}`,
+        kw: hasChanges && !sameAsOriginal ? [original.kw, transformed.kw] : [original.kw],
+        principles: [],
+        situation: throws.map((t, i) => `第${i+1}爻=${t.type}(${t.sum})`).join(' / '),
+        action: '', reflection: '',
+        date: new Date().toISOString().slice(0, 10),
+      };
+      try {
+        const list = JSON.parse(localStorage.getItem('eki:journal') || '[]');
+        list.unshift(snap);
+        localStorage.setItem('eki:journal', JSON.stringify(list));
+        const btn = document.getElementById('coins-save');
+        btn.textContent = '✓ 保存しました';
+        btn.disabled = true;
+      } catch (e) {
+        alert('localStorage への保存に失敗しました: ' + e.message);
+      }
+    });
+  };
+
+  castBtn.addEventListener('click', () => {
+    throws.length = 0;
+    for (let i = 0; i < 6; i++) {
+      const t = castOneThrow();
+      throws.push({ ...t, ...classify(t.sum) });
+    }
+    renderThrows();
+    renderResult();
+  });
+
+  stepBtn.addEventListener('click', () => {
+    if (throws.length >= 6) return;
+    const t = castOneThrow();
+    throws.push({ ...t, ...classify(t.sum) });
+    renderThrows();
+    if (throws.length === 6) renderResult();
+  });
+
+  resetBtn.addEventListener('click', () => {
+    throws.length = 0; renderThrows(); result.hidden = true;
+  });
+
+  renderThrows();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -1813,6 +1970,7 @@ async function main() {
     setupStory(state.sequence, state.hexagrams);
     setupCases(state.cases, state.hexagrams, state.worldview);
     setupWuxing(state.wuxing, state.trigrams);
+    setupCoins(state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
     // Honor deep-link hash now that all renderers have initialized
     routeFromHash();
