@@ -69,6 +69,33 @@
 
 UI では `loadData` 時に KW で結合して `hexagrams[i].deep` として参照される。
 
+## `data/wuxing.json`
+
+五行(木火土金水)と八卦の伝統的対応データ。**易と五行は別体系**である旨を必ず併記。
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `intro` | string | ✓ | 全体の導入文 |
+| `note` | string | ✓ | 「易と五行は別体系」を明示する注記 |
+| `elements` | array | ✓ | 5要素 |
+| `generates` | array | ✓ | 相生 5 関係 |
+| `restricts` | array | ✓ | 相克 5 関係 |
+
+各 element:
+
+| フィールド | 型 | 必須 | 説明 |
+|-----------|----|------|-----|
+| `id` | string | ✓ | `mu` / `ka` / `do` / `kin` / `sui` |
+| `name_zh` / `name_jp` / `name_en` | string | ✓ | 漢字 / 平仮名 / 英訳 |
+| `color` / `season` / `direction` / `organ` / `virtue` / `emotion` / `taste` / `climate` | string | ✓ | 各属性 |
+| `trigrams` | int[] | ✓ | 関連する八卦 id の配列 |
+| `summary` | string | ✓ | 1 行解説 |
+
+### 不変条件
+- 5 要素ちょうど
+- 全 8 トリグラム (0-7) が trigrams 配列のいずれかに含まれる
+- generates / restricts の `from` / `to` はすべて有効な element id
+
 ## ID 命名規則
 
 文字列 `id` フィールドは以下の規則で揺れなく命名する:

@@ -9,7 +9,7 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence, deep, cases] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum, sequence, deep, cases, wuxing] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
@@ -21,6 +21,7 @@ async function loadData() {
     fetch('data/sequence.json').then((r) => r.json()),
     fetch('data/hexagrams-deep.json').then((r) => r.json()),
     fetch('data/cases.json').then((r) => r.json()),
+    fetch('data/wuxing.json').then((r) => r.json()),
   ]);
   // Merge deep info into hexagrams by kw
   const deepByKw = Object.fromEntries(deep.map((d) => [d.kw, d]));
@@ -38,6 +39,7 @@ async function loadData() {
   state.curriculum = curriculum;
   state.sequence = sequence;
   state.cases = cases;
+  state.wuxing = wuxing;
 }
 
 function setupTabs() {
@@ -1661,6 +1663,138 @@ function setupCases(cases, hexagrams, worldview) {
   render();
 }
 
+// ============================================================
+// Wuxing (五行) ─ trigram correspondence
+// ============================================================
+function setupWuxing(wuxing, trigrams) {
+  const introEl = document.getElementById('wuxing-intro');
+  const noteEl  = document.getElementById('wuxing-note');
+  const svgWrap = document.getElementById('wuxing-svg');
+  const tableEl = document.getElementById('wuxing-table');
+  if (!introEl || !wuxing) return;
+  introEl.textContent = wuxing.intro;
+  noteEl.textContent = '※ ' + wuxing.note;
+
+  // Pentagon SVG
+  const size = 360, r = 110;
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('viewBox', `${-size/2} ${-size/2} ${size} ${size}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('height', '100%');
+  // Position elements at pentagon vertices, mu on top, then clockwise: ka, do, kin, sui
+  const order = ['mu', 'ka', 'do', 'kin', 'sui'];
+  const pos = {};
+  order.forEach((id, i) => {
+    const angle = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+    pos[id] = { x: r * Math.cos(angle), y: r * Math.sin(angle) };
+  });
+
+  const arrowDefs = `
+    <defs>
+      <marker id="ah-gen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" class="arrow-head-gen" />
+      </marker>
+      <marker id="ah-res" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+        <path d="M0,0 L10,5 L0,10 z" class="arrow-head-res" />
+      </marker>
+    </defs>`;
+  svg.insertAdjacentHTML('beforeend', arrowDefs);
+
+  // Generation arrows (相生): along the pentagon perimeter
+  wuxing.generates.forEach((g) => {
+    const a = pos[g.from], b = pos[g.to];
+    // Shorten to avoid overlapping nodes (radius 28)
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const x1 = a.x + ux * 28, y1 = a.y + uy * 28;
+    const x2 = b.x - ux * 32, y2 = b.y - uy * 32;
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('class', 'gen');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke-width', '2');
+    line.setAttribute('marker-end', 'url(#ah-gen)');
+    svg.appendChild(line);
+  });
+  // Restriction arrows (相克): pentagram (skip 1)
+  wuxing.restricts.forEach((rs) => {
+    const a = pos[rs.from], b = pos[rs.to];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len;
+    const x1 = a.x + ux * 28, y1 = a.y + uy * 28;
+    const x2 = b.x - ux * 32, y2 = b.y - uy * 32;
+    const line = document.createElementNS(ns, 'line');
+    line.setAttribute('class', 'res');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke-width', '1.5');
+    line.setAttribute('marker-end', 'url(#ah-res)');
+    svg.appendChild(line);
+  });
+
+  // Nodes
+  wuxing.elements.forEach((e) => {
+    const p = pos[e.id];
+    const g = document.createElementNS(ns, 'g');
+    g.setAttribute('transform', `translate(${p.x},${p.y})`);
+    const circ = document.createElementNS(ns, 'circle');
+    circ.setAttribute('class', 'node-bg');
+    circ.setAttribute('r', 28); circ.setAttribute('cx', 0); circ.setAttribute('cy', 0);
+    circ.setAttribute('stroke-width', '1.5');
+    g.appendChild(circ);
+    const txt = document.createElementNS(ns, 'text');
+    txt.setAttribute('class', 'node-name'); txt.setAttribute('y', 4);
+    txt.textContent = e.name_zh;
+    g.appendChild(txt);
+    const en = document.createElementNS(ns, 'text');
+    en.setAttribute('class', 'node-en'); en.setAttribute('y', 20);
+    en.textContent = e.name_en;
+    g.appendChild(en);
+    svg.appendChild(g);
+  });
+
+  // Legend
+  svg.insertAdjacentHTML('beforeend', `
+    <g transform="translate(${-size/2 + 10}, ${size/2 - 28})">
+      <line x1="0" y1="0" x2="20" y2="0" class="gen" stroke-width="2" />
+      <text x="26" y="4" fill="var(--ink-3)" font-size="10">相生</text>
+      <line x1="60" y1="0" x2="80" y2="0" class="res" stroke-width="1.5" />
+      <text x="86" y="4" fill="var(--ink-3)" font-size="10">相克</text>
+    </g>`);
+  svgWrap.innerHTML = '';
+  svgWrap.appendChild(svg);
+
+  // Table
+  const trigById = Object.fromEntries(trigrams.map((t) => [t.id, t]));
+  tableEl.innerHTML = '';
+  wuxing.elements.forEach((e) => {
+    const trigs = e.trigrams.map((id) => `<span title="${trigById[id].name_zh} (${trigById[id].name_en})">${trigById[id].symbol}</span>`).join('');
+    const div = document.createElement('div');
+    div.className = 'wuxing-row';
+    div.innerHTML = `
+      <div class="name">${e.name_zh}</div>
+      <div>
+        <div style="font-size:13px;color:var(--ink);margin-bottom:4px;">${e.summary}</div>
+        <div class="trigs">${trigs}</div>
+        <dl class="meta">
+          <span class="pair"><dt>色:</dt><dd>${e.color}</dd></span>
+          <span class="pair"><dt>季:</dt><dd>${e.season}</dd></span>
+          <span class="pair"><dt>方:</dt><dd>${e.direction}</dd></span>
+          <span class="pair"><dt>臓:</dt><dd>${e.organ}</dd></span>
+          <span class="pair"><dt>徳:</dt><dd>${e.virtue}</dd></span>
+          <span class="pair"><dt>情:</dt><dd>${e.emotion}</dd></span>
+          <span class="pair"><dt>味:</dt><dd>${e.taste}</dd></span>
+          <span class="pair"><dt>気:</dt><dd>${e.climate}</dd></span>
+        </dl>
+      </div>
+    `;
+    tableEl.appendChild(div);
+  });
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -1678,6 +1812,7 @@ async function main() {
     setupLearn(state.curriculum);
     setupStory(state.sequence, state.hexagrams);
     setupCases(state.cases, state.hexagrams, state.worldview);
+    setupWuxing(state.wuxing, state.trigrams);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
     // Honor deep-link hash now that all renderers have initialized
     routeFromHash();

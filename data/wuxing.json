@@ -1,0 +1,65 @@
+{
+  "intro": "五行(ごぎょう、Wǔxíng)= 木・火・土・金・水 は、易と並ぶ古代中国の自然観。本来は別体系で、易が「2 値の組合せ」(2/4/8/64)であるのに対し、五行は「5 元素の循環」を扱う。後天八卦(文王八卦)と五行の伝統的対応が存在するが、8 と 5 で割り切れないため、土・木・金は2卦に対応する。",
+  "note": "易と五行は別体系。組み合わせて使う場合は『どの伝統的対応に従っているか』を明示すること。",
+  "elements": [
+    {
+      "id": "mu",
+      "name_zh": "木", "name_jp": "もく", "name_en": "Wood",
+      "color": "青",  "season": "春",   "direction": "東",
+      "organ": "肝",  "virtue": "仁",   "emotion": "怒",
+      "taste": "酸",  "climate": "風",
+      "trigrams": [1, 6],
+      "summary": "発生・成長・上昇のエネルギー。芽吹く力。"
+    },
+    {
+      "id": "ka",
+      "name_zh": "火", "name_jp": "か",   "name_en": "Fire",
+      "color": "赤",  "season": "夏",   "direction": "南",
+      "organ": "心",  "virtue": "礼",   "emotion": "喜",
+      "taste": "苦",  "climate": "暑",
+      "trigrams": [5],
+      "summary": "発散・最盛・明るさのエネルギー。燃える力。"
+    },
+    {
+      "id": "do",
+      "name_zh": "土", "name_jp": "ど",   "name_en": "Earth",
+      "color": "黄",  "season": "土用 (季の変わり目)", "direction": "中央",
+      "organ": "脾",  "virtue": "信",   "emotion": "思",
+      "taste": "甘",  "climate": "湿",
+      "trigrams": [0, 4],
+      "summary": "受容・媒介・安定のエネルギー。中央の土台。"
+    },
+    {
+      "id": "kin",
+      "name_zh": "金", "name_jp": "きん", "name_en": "Metal",
+      "color": "白",  "season": "秋",   "direction": "西",
+      "organ": "肺",  "virtue": "義",   "emotion": "悲",
+      "taste": "辛",  "climate": "燥",
+      "trigrams": [3, 7],
+      "summary": "収斂・凝縮・断裁のエネルギー。形を整える力。"
+    },
+    {
+      "id": "sui",
+      "name_zh": "水", "name_jp": "すい", "name_en": "Water",
+      "color": "黒",  "season": "冬",   "direction": "北",
+      "organ": "腎",  "virtue": "智",   "emotion": "恐",
+      "taste": "鹹 (塩辛い)", "climate": "寒",
+      "trigrams": [2],
+      "summary": "潜伏・流動・蓄積のエネルギー。下に向かう力。"
+    }
+  ],
+  "generates": [
+    { "from": "mu",  "to": "ka",  "reason": "木は燃えて火を生む" },
+    { "from": "ka",  "to": "do",  "reason": "火が灰を残し土となる" },
+    { "from": "do",  "to": "kin", "reason": "土から金属が産する" },
+    { "from": "kin", "to": "sui", "reason": "金属の表面に水が結露" },
+    { "from": "sui", "to": "mu",  "reason": "水が木を養う" }
+  ],
+  "restricts": [
+    { "from": "mu",  "to": "do",  "reason": "木が土を割り養分を奪う" },
+    { "from": "do",  "to": "sui", "reason": "土が水を吸い堰き止める" },
+    { "from": "sui", "to": "ka",  "reason": "水が火を消す" },
+    { "from": "ka",  "to": "kin", "reason": "火が金を溶かす" },
+    { "from": "kin", "to": "mu",  "reason": "金属(斧)が木を切る" }
+  ]
+}
