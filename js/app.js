@@ -9,7 +9,7 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines, diagnose, curriculum] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
@@ -17,6 +17,7 @@ async function loadData() {
     fetch('data/figures.json').then((r) => r.json()),
     fetch('data/disciplines.json').then((r) => r.json()),
     fetch('data/diagnose.json').then((r) => r.json()),
+    fetch('data/curriculum.json').then((r) => r.json()),
   ]);
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
@@ -25,6 +26,7 @@ async function loadData() {
   state.figures = figures;
   state.disciplines = disciplines;
   state.diagnose = diagnose;
+  state.curriculum = curriculum;
 }
 
 function setupTabs() {
@@ -1318,6 +1320,81 @@ function highlight(text, tokens) {
 }
 function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s; }
 
+// ============================================================
+// Learning courses
+// ============================================================
+const LEARN_KEY = 'eki:progress';
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(LEARN_KEY) || '{}'); } catch { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(LEARN_KEY, JSON.stringify(p)); }
+
+function setupLearn(curriculum) {
+  const root = document.getElementById('learn-courses');
+  if (!root) return;
+  let progress = loadProgress();
+
+  const render = () => {
+    root.innerHTML = '';
+    curriculum.forEach((course) => {
+      const total = course.steps.length;
+      const done = course.steps.filter((s) => progress[s.id]).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      const div = document.createElement('article');
+      div.className = 'learn-course';
+      div.innerHTML = `
+        <div class="learn-course__head">
+          <h3>${course.title}</h3>
+          <span class="lvl-tag">${course.level}</span>
+        </div>
+        <p class="summary">${course.summary}</p>
+        <div class="learn-progress">
+          <div class="learn-progress__bar"><div style="width:${pct}%;"></div></div>
+          <span class="learn-progress__txt">${done} / ${total} (${pct}%)</span>
+        </div>
+        <div class="learn-steps">
+          ${course.steps.map((s) => `
+            <div class="learn-step ${progress[s.id] ? 'is-done' : ''}">
+              <button type="button" class="learn-step__check" data-step="${s.id}" aria-label="${progress[s.id] ? '完了マークを外す' : '完了マークを付ける'}">${progress[s.id] ? '✓' : ''}</button>
+              <div>
+                <div class="learn-step__title">${s.title}</div>
+                <div class="learn-step__sum">${s.summary}</div>
+              </div>
+              <span class="learn-step__time">${s.duration_min}分</span>
+              <button type="button" class="learn-step__go" data-anchor="${s.anchor}">開く →</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="learn-checks">
+          <h4>確認の問い</h4>
+          <ul>${course.checks.map((c) => `<li>${c}</li>`).join('')}</ul>
+        </div>
+      `;
+      root.appendChild(div);
+    });
+  };
+
+  root.addEventListener('click', (e) => {
+    const check = e.target.closest('.learn-step__check');
+    if (check) {
+      const id = check.dataset.step;
+      progress[id] = !progress[id];
+      saveProgress(progress);
+      render();
+      return;
+    }
+    const go = e.target.closest('.learn-step__go');
+    if (go) {
+      const target = go.dataset.anchor;
+      document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t.dataset.target === target)));
+      document.querySelectorAll('.section').forEach((s) => s.classList.toggle('is-active', s.id === target));
+      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  render();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -1332,6 +1409,7 @@ async function main() {
     setupScience(state.trigrams, state.hexagrams);
     setupDiagnose(state.diagnose, state.hexagrams, state.worldview);
     setupJournal(state.hexagrams, state.worldview);
+    setupLearn(state.curriculum);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);
