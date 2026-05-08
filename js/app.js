@@ -9,16 +9,20 @@ const state = {
 };
 
 async function loadData() {
-  const [trigrams, hexagrams, worldview, applications] = await Promise.all([
+  const [trigrams, hexagrams, worldview, applications, figures, disciplines] = await Promise.all([
     fetch('data/trigrams.json').then((r) => r.json()),
     fetch('data/hexagrams.json').then((r) => r.json()),
     fetch('data/worldview.json').then((r) => r.json()),
     fetch('data/applications.json').then((r) => r.json()),
+    fetch('data/figures.json').then((r) => r.json()),
+    fetch('data/disciplines.json').then((r) => r.json()),
   ]);
   state.trigrams = trigrams;
   state.hexagrams = hexagrams;
   state.worldview = worldview;
   state.applications = applications;
+  state.figures = figures;
+  state.disciplines = disciplines;
 }
 
 function setupTabs() {
@@ -615,6 +619,109 @@ function renderAppCards(category, applications, hexagrams, worldview) {
   });
 }
 
+// ============================================================
+// Legacy section
+// ============================================================
+const LEVEL_LABEL = {
+  fact:        ['事実',     'lvl-fact'],
+  tradition:   ['伝統',     'lvl-tradition'],
+  interpretation: ['解釈・並行', 'lvl-interp'],
+};
+
+function setupLegacy(figures, disciplines, hexagrams, worldview) {
+  const tabs = document.querySelectorAll('#leg-subtabs .seg__btn');
+  if (!tabs.length) return;
+  let current = 'figures';
+  tabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabs.forEach((b) => b.classList.toggle('is-on', b === btn));
+      current = btn.dataset.cat;
+      renderLegacyCards(current, figures, disciplines, hexagrams, worldview);
+    });
+  });
+  renderLegacyCards(current, figures, disciplines, hexagrams, worldview);
+}
+
+function renderLegacyCards(cat, figures, disciplines, hexagrams, worldview) {
+  const root = document.getElementById('leg-cards');
+  if (!root) return;
+  root.innerHTML = '';
+  const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+  const wvById  = Object.fromEntries(worldview.map((p) => [p.id, p]));
+  const figById = Object.fromEntries(figures.map((f) => [f.id, f]));
+
+  const items = cat === 'figures' ? figures : disciplines;
+  items.forEach((it) => {
+    const card = document.createElement('article');
+    card.className = 'legacy-card';
+    const [levelLabel, levelClass] = LEVEL_LABEL[it.level] || ['—', ''];
+    const related = (it.related_kw || [])
+      .map((kw) => hexByKw[kw])
+      .filter(Boolean)
+      .map((h) => `<a href="#hexagrams" data-jump-kw="${h.kw}">${h.symbol} ${h.name_zh}</a>`)
+      .join('');
+    if (cat === 'figures') {
+      const principles = (it.principles || [])
+        .map((id) => wvById[id])
+        .filter(Boolean)
+        .map((p) => `<span style="color:var(--gold);">${p.name_zh}</span>`)
+        .join('');
+      card.innerHTML = `
+        <h3>
+          <span class="name-zh">${it.name_zh}</span>
+          <span class="name-en">${it.name_en}</span>
+          <span class="lvl ${levelClass}">${levelLabel}</span>
+        </h3>
+        <p class="meta">
+          <span><strong>時代:</strong>${it.era}</span>
+          <span><strong>地域:</strong>${it.region}</span>
+          <span><strong>領域:</strong>${it.domain}</span>
+        </p>
+        <p class="body">${it.contribution}</p>
+        <div class="footer">
+          <span>関連卦:</span>${related || '<em>—</em>'}
+          ${principles ? `<span style="margin-left:8px;">関連原理:</span>${principles}` : ''}
+        </div>
+      `;
+    } else {
+      const exemplars = (it.exemplars || [])
+        .map((id) => figById[id])
+        .filter(Boolean)
+        .map((f) => `<a href="#legacy" data-jump-figure="${f.id}">${f.name_zh}</a>`)
+        .join('');
+      card.innerHTML = `
+        <h3>
+          <span class="name-zh">${it.name_jp}</span>
+          <span class="name-en">${it.name_en}</span>
+          <span class="lvl ${levelClass}">${levelLabel}</span>
+        </h3>
+        <p class="meta"><span><strong>核となる接続:</strong>${it.core_link}</span></p>
+        <p class="body">${it.summary}</p>
+        <div class="footer">
+          <span>関連卦:</span>${related || '<em>—</em>'}
+          ${exemplars ? `<span style="margin-left:8px;">代表例:</span>${exemplars}` : ''}
+        </div>
+      `;
+    }
+    root.appendChild(card);
+  });
+}
+
+// Cross-link: discipline → figure
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[data-jump-figure]');
+  if (!a) return;
+  e.preventDefault();
+  // Switch to figures subtab and scroll to that card
+  const figTab = document.querySelector('#leg-subtabs .seg__btn[data-cat="figures"]');
+  if (figTab) figTab.click();
+  setTimeout(() => {
+    const target = Array.from(document.querySelectorAll('#leg-cards .legacy-card'))
+      .find((c) => c.querySelector('.name-zh')?.textContent === state.figures.find((f) => f.id === a.dataset.jumpFigure)?.name_zh);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
+});
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -624,6 +731,7 @@ async function main() {
     setupHexagrams(state.trigrams, state.hexagrams);
     setupWorldview(state.worldview, state.hexagrams);
     setupApplications(state.applications, state.hexagrams, state.worldview);
+    setupLegacy(state.figures, state.disciplines, state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);

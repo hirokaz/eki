@@ -1,0 +1,73 @@
+[
+  {
+    "id": "mathematics",
+    "name_jp": "数学",
+    "name_en": "Mathematics",
+    "core_link": "二進法・組合せ論",
+    "summary": "ライプニッツが伏羲 64 卦と 6 ビット二進数の完全な一致を指摘して以来、易の符号体系は『最古の二進数表』として数学史で言及される。8×8 Fuxi 図はグレイコードに近い構造的対称性を持つ。",
+    "level": "fact",
+    "exemplars": ["leibniz"],
+    "related_kw": [1, 2]
+  },
+  {
+    "id": "physics",
+    "name_jp": "物理学",
+    "name_en": "Physics",
+    "core_link": "相補性・状態空間",
+    "summary": "ボーアの相補性原理(粒子と波の相互排他的かつ相補的な記述)は、陰陽の哲学と構造的に並行する。複雑系・統計力学では 6 自由度の離散状態空間として比較対象になる。",
+    "level": "fact",
+    "exemplars": ["bohr"],
+    "related_kw": [11, 12, 63, 64]
+  },
+  {
+    "id": "biology",
+    "name_zh": "生物学",
+    "name_jp": "生物学",
+    "name_en": "Biology",
+    "core_link": "DNA コドン (4³ = 64)",
+    "summary": "M. シェーンベルガーは 1973 年、4 塩基(A/T/G/C)を 3 つ並べた 4³=64 個のコドンと 64 卦の構造的並行を指摘。コドンと卦のマッピング自体は『機能的同一性』ではなく『構造的アナロジー』だが、6 ビット = 2 つのトリグラム = 4 進 3 桁という対応は一見の価値がある。",
+    "level": "interpretation",
+    "exemplars": [],
+    "related_kw": [1, 2]
+  },
+  {
+    "id": "psychology",
+    "name_jp": "心理学",
+    "name_en": "Psychology",
+    "core_link": "シンクロニシティ・元型",
+    "summary": "ユングは易を『因果ではなく共時性(意味ある偶然)に基づく知の体系』として位置づけ、内的状態と外的状況の同期を読む技法と捉えた。元型理論の傍証としても引用される。",
+    "level": "fact",
+    "exemplars": ["jung"],
+    "related_kw": [31, 61]
+  },
+  {
+    "id": "computer-science",
+    "name_jp": "計算機科学",
+    "name_en": "Computer Science",
+    "core_link": "デジタル論理の祖型",
+    "summary": "教科書で『二進数の起源・前史』としてしばしば紹介される。これは『易が計算機を発明した』ということではなく『同じ離散符号化の発想は何度も独立に現れた』ことを示す事例。",
+    "level": "interpretation",
+    "exemplars": ["leibniz"],
+    "related_kw": [1, 2]
+  },
+  {
+    "id": "music",
+    "name_jp": "音楽",
+    "name_en": "Music",
+    "core_link": "偶然性音楽",
+    "summary": "ジョン・ケージは作曲の決定手順に易の擲銭法を導入し、作曲家の意図を最小化する手法を確立。これは易が『偶然を意味に変換する装置』として現代芸術に活用された顕著な事例。",
+    "level": "fact",
+    "exemplars": ["cage"],
+    "related_kw": [49, 17]
+  },
+  {
+    "id": "management",
+    "name_jp": "経営学",
+    "name_en": "Management",
+    "core_link": "変化マネジメント",
+    "summary": "東洋的リーダー論・組織論の文脈で、64 卦を組織のフェーズに対応させる試みが多数。屯(立ち上げ)→蒙(教育)→需(待機)→…→既濟→未濟 のフェーズマップが代表例。占断ではなく状態言語として用いる。",
+    "level": "interpretation",
+    "exemplars": [],
+    "related_kw": [3, 4, 5, 63, 64]
+  }
+]

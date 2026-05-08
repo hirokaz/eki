@@ -235,7 +235,20 @@
     </section>
 
     <section id="legacy" class="section" role="tabpanel" aria-label="影響">
-      <p class="section__placeholder">影響セクション (Issue #14 で実装)</p>
+      <h2>影響 ─ 偉人たちの応用と他学問への波及</h2>
+      <p class="lead">
+        易経はどのように歴史上読まれ、どの学問領域に波及したか。
+        記録の確かさは様々(<span class="lvl lvl-fact">事実</span> /
+        <span class="lvl lvl-tradition">伝統</span> /
+        <span class="lvl lvl-interp">解釈・並行</span>)を区別して提示します。
+      </p>
+
+      <div class="seg" role="tablist" aria-label="影響カテゴリ" id="leg-subtabs">
+        <button class="seg__btn is-on" data-cat="figures"     type="button">偉人</button>
+        <button class="seg__btn"       data-cat="disciplines" type="button">他学問</button>
+      </div>
+
+      <div id="leg-cards" class="legacy-grid" style="margin-top: 16px;"></div>
     </section>
 
     <section id="science" class="section" role="tabpanel" aria-label="自然科学">
