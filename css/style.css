@@ -940,6 +940,79 @@ button { font: inherit; color: inherit; }
 }
 
 /* ============================================================
+   Coin toss (擲銭)
+   ============================================================ */
+.coins-card { display: flex; flex-direction: column; gap: 16px; }
+.coins-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.coins-stage {
+  display: grid; gap: 18px;
+  grid-template-columns: minmax(260px, 0.8fr) 1fr;
+}
+@media (max-width: 720px) { .coins-stage { grid-template-columns: 1fr; } }
+
+.coins-throws {
+  display: flex; flex-direction: column-reverse; gap: 8px;
+  background: var(--bg-2); border-radius: 8px; padding: 14px;
+  min-height: 320px;
+}
+.coins-throw {
+  display: grid; grid-template-columns: 28px 100px 1fr; gap: 10px; align-items: center;
+  padding: 6px 8px; border-radius: 6px;
+}
+.coins-throw.is-changing { background: rgba(192, 57, 43, .08); }
+.coins-throw .lbl { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.coins-throw .face {
+  display: flex; gap: 4px;
+  align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 16px;
+}
+.coins-throw .face .coin {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600;
+  border: 1px solid var(--gold);
+}
+.coins-throw .face .coin.heads { background: var(--gold); color: var(--bg-0); }
+.coins-throw .face .coin.tails { background: transparent; color: var(--gold); }
+.coins-throw .yao {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--ink-2);
+}
+.coins-throw .yao .bar {
+  display: inline-block; height: 6px; border-radius: 1px;
+}
+.coins-throw .yao .bar.yang { width: 80px; background: var(--yang); }
+.coins-throw .yao .bar.yin {
+  width: 80px;
+  background: linear-gradient(90deg, var(--yin) 0 42%, transparent 42% 58%, var(--yin) 58% 100%);
+}
+.coins-throw .yao .change { color: var(--shu); font-size: 11px; }
+
+.coins-result {
+  background: var(--bg-2); border-radius: 8px; padding: 16px;
+}
+.coins-result h3 { margin: 0 0 8px; color: var(--gold); font-family: var(--font-serif); font-size: 18px; }
+.coins-result__hex {
+  display: grid; gap: 12px;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin: 12px 0;
+}
+.coins-result__hex .pane {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.coins-result__hex .pane:hover { border-color: var(--gold); }
+.coins-result__hex .pane .sym { font-size: 48px; color: var(--gold); line-height: 1; }
+.coins-result__hex .pane .nm { font-size: 14px; font-family: var(--font-serif); }
+.coins-result__hex .pane .meta { font-size: 11px; color: var(--ink-3); font-family: var(--font-mono); }
+.coins-result__hex .arrow { text-align: center; color: var(--gold); font-size: 24px; }
+.coins-result .save { display: flex; gap: 8px; margin-top: 10px; }
+
+/* ============================================================
    Wuxing (五行)
    ============================================================ */
 .wuxing-wrap {

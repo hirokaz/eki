@@ -29,6 +29,7 @@
       <button class="tab" role="tab" aria-selected="false" data-target="hexagrams">六十四卦</button>
       <button class="tab" role="tab" aria-selected="false" data-target="story">物語</button>
       <button class="tab" role="tab" aria-selected="false" data-target="diagnose">自己診断</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="coins">擲銭</button>
       <button class="tab" role="tab" aria-selected="false" data-target="journal">ジャーナル</button>
       <button class="tab" role="tab" aria-selected="false" data-target="worldview">見方</button>
       <button class="tab" role="tab" aria-selected="false" data-target="applications">応用</button>
@@ -268,6 +269,38 @@
       </div>
 
       <article id="diagnose-card" class="card diag-card"></article>
+    </section>
+
+    <section id="coins" class="section" role="tabpanel" aria-label="擲銭">
+      <h2>擲銭法 ─ 6 ビット乱数の生成体験</h2>
+      <p class="lead">
+        コイン3枚を6回投げ、その結果から1つの卦を構成する古来の方法です。
+        本サイトでは<strong>「乱数 × 解釈の足場」のフレーム</strong>として提供します。
+        結果が「未来を当てる」ものではなく、<strong>あなたが今その卦のフレームでいまの状況を読みなおすための種</strong>として使ってください。
+      </p>
+
+      <article class="card" style="border-color: rgba(192,57,43,.4);">
+        <h3 style="color: var(--shu);">本ツールの位置づけ</h3>
+        <ul class="bullets" style="color: var(--ink-2);">
+          <li>結果は単なる<strong>6 ビットの乱数</strong>(3コイン×6回の組合せ)</li>
+          <li>「変爻」=ビット反転 → 之卦(transformed hexagram) も計算します</li>
+          <li>「結果が当たる」式の解釈は採りません。卦は<strong>状況を読む共通言語</strong></li>
+          <li>結果はジャーナル (#journal) に保存できます</li>
+        </ul>
+      </article>
+
+      <article id="coins-card" class="card coins-card">
+        <div class="coins-controls">
+          <button id="coins-cast" type="button" class="btn">▶ 1卦をひらく(6回投げる)</button>
+          <button id="coins-step" type="button" class="seg__btn">1回ずつ投げる</button>
+          <button id="coins-reset" type="button" class="seg__btn">リセット</button>
+        </div>
+
+        <div class="coins-stage">
+          <div id="coins-throws" class="coins-throws"></div>
+          <div id="coins-result" class="coins-result" hidden></div>
+        </div>
+      </article>
     </section>
 
     <section id="journal" class="section" role="tabpanel" aria-label="ジャーナル">
