@@ -22,6 +22,7 @@
       <button class="tab" role="tab" aria-selected="false" data-target="trigrams">八卦</button>
       <button class="tab" role="tab" aria-selected="false" data-target="hexagrams">六十四卦</button>
       <button class="tab" role="tab" aria-selected="false" data-target="diagnose">自己診断</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="journal">ジャーナル</button>
       <button class="tab" role="tab" aria-selected="false" data-target="worldview">見方</button>
       <button class="tab" role="tab" aria-selected="false" data-target="applications">応用</button>
       <button class="tab" role="tab" aria-selected="false" data-target="legacy">影響</button>
@@ -221,6 +222,29 @@
       </div>
 
       <article id="diagnose-card" class="card diag-card"></article>
+    </section>
+
+    <section id="journal" class="section" role="tabpanel" aria-label="ジャーナル">
+      <h2>ジャーナル ─ 自分の卦読みを記録・振り返る</h2>
+      <p class="lead">
+        学びは記録と振り返りで深まります。
+        状況・引いた卦・関連原理・行動・結果を蓄積し、自分の繰り返しパターンに気づきましょう。
+        <strong>データはあなたのブラウザ (localStorage) にのみ保存され、サーバには送信されません。</strong>
+      </p>
+
+      <div class="journal-toolbar">
+        <button id="jr-new" type="button" class="btn">＋ 新規記録</button>
+        <button id="jr-export" type="button" class="seg__btn">JSON 書き出し</button>
+        <label class="seg__btn" style="cursor:pointer;">
+          JSON 取り込み
+          <input id="jr-import" type="file" accept="application/json" hidden />
+        </label>
+        <span id="jr-count" class="muted" style="margin-left:auto;"></span>
+      </div>
+
+      <article id="jr-editor" class="card jr-editor" hidden></article>
+
+      <div id="jr-list" class="journal-list"></div>
     </section>
 
     <section id="worldview" class="section" role="tabpanel" aria-label="見方">

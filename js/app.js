@@ -988,6 +988,171 @@ function setupDiagnose(diagnose, hexagrams, worldview) {
   render();
 }
 
+// ============================================================
+// Journal (localStorage)
+// ============================================================
+const JR_KEY = 'eki:journal';
+
+function loadJournal() {
+  try { return JSON.parse(localStorage.getItem(JR_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveJournal(entries) {
+  localStorage.setItem(JR_KEY, JSON.stringify(entries));
+}
+
+function setupJournal(hexagrams, worldview) {
+  const listRoot = document.getElementById('jr-list');
+  const editor   = document.getElementById('jr-editor');
+  const newBtn   = document.getElementById('jr-new');
+  const expBtn   = document.getElementById('jr-export');
+  const impInput = document.getElementById('jr-import');
+  const countEl  = document.getElementById('jr-count');
+  if (!listRoot) return;
+
+  const renderList = () => {
+    const entries = loadJournal();
+    countEl.textContent = `${entries.length} 件`;
+    if (entries.length === 0) {
+      listRoot.innerHTML = `<div class="journal-empty">まだ記録がありません。「＋ 新規記録」または「自己診断」の結果から保存できます。</div>`;
+      return;
+    }
+    const hexByKw = Object.fromEntries(hexagrams.map((h) => [h.kw, h]));
+    const wvById  = Object.fromEntries(worldview.map((p) => [p.id, p]));
+    listRoot.innerHTML = '';
+    entries.forEach((e, idx) => {
+      const item = document.createElement('article');
+      item.className = 'jr-item';
+      const date = e.date || new Date(e.ts).toISOString().slice(0, 10);
+      const primaryKw = (e.kw && e.kw[0]) || (e.topHex && e.topHex[0]);
+      const h = primaryKw ? hexByKw[primaryKw] : null;
+      const principles = (e.principles || e.topPrinciples || []).map((id) => wvById[id]).filter(Boolean);
+      const summary = e.note || (e.userQuestions ? e.userQuestions.join(' / ') : '(メモなし)');
+      const title = e.title || (e.type === 'diagnose' ? '自己診断の記録' : '記録');
+      item.innerHTML = `
+        <span class="sym">${h ? h.symbol : '☯'}</span>
+        <div class="body">
+          <h4>${title}${h ? ` ─ ${h.name_zh}` : ''}</h4>
+          <span class="date">${date}</span>
+          <p class="summary">${summary.length > 200 ? summary.slice(0, 200) + '…' : summary}</p>
+          <div class="principles">${principles.map((p) => `<span>${p.name_zh}</span>`).join('')}</div>
+        </div>
+        <div class="actions">
+          <button data-act="edit"   data-idx="${idx}">編集</button>
+          <button data-act="delete" data-idx="${idx}">削除</button>
+        </div>
+      `;
+      listRoot.appendChild(item);
+    });
+  };
+
+  const showEditor = (entry, idx) => {
+    editor.hidden = false;
+    const isNew = idx == null;
+    const hexOptions = hexagrams.map((h) => `<option value="${h.kw}" ${entry?.kw?.[0] === h.kw ? 'selected' : ''}>KW#${h.kw} ${h.symbol} ${h.name_zh} (${h.name_jp})</option>`).join('');
+    const wvOptions  = worldview.map((p) => `<option value="${p.id}" ${(entry?.principles || []).includes(p.id) ? 'selected' : ''}>${p.name_zh} (${p.concept})</option>`).join('');
+    const today = new Date().toISOString().slice(0, 10);
+    editor.innerHTML = `
+      <h3 style="margin:0;color:var(--gold);font-family:var(--font-serif);">${isNew ? '新規記録' : '記録の編集'}</h3>
+      <div class="row">
+        <label>日付<input type="date" id="jr-date" value="${entry?.date || today}" /></label>
+        <label>見出し<input type="text" id="jr-title" placeholder="例: チームの方針会議で揺らいだ" value="${entry?.title || ''}" /></label>
+      </div>
+      <label>引いた卦
+        <select id="jr-kw"><option value="">— 選択 —</option>${hexOptions}</select>
+      </label>
+      <label>関連する原理 (Ctrl/Cmd+クリックで複数選択)
+        <select id="jr-principles" multiple size="4">${wvOptions}</select>
+      </label>
+      <label>状況・観察したこと
+        <textarea id="jr-situation" placeholder="どんな状況だったか">${entry?.situation || ''}</textarea>
+      </label>
+      <label>取った行動 / 取りたい行動
+        <textarea id="jr-action" placeholder="それを受けてどうしたか/どうするか">${entry?.action || ''}</textarea>
+      </label>
+      <label>結果・振り返り (時間が経ってから書き加えてOK)
+        <textarea id="jr-reflection" placeholder="後から書き足す">${entry?.reflection || ''}</textarea>
+      </label>
+      <div class="actions">
+        <button type="button" class="btn" id="jr-save">${isNew ? '保存' : '更新'}</button>
+        <button type="button" class="seg__btn" id="jr-cancel">キャンセル</button>
+      </div>
+    `;
+    document.getElementById('jr-cancel').addEventListener('click', () => {
+      editor.hidden = true;
+    });
+    document.getElementById('jr-save').addEventListener('click', () => {
+      const kw = document.getElementById('jr-kw').value;
+      const principles = Array.from(document.getElementById('jr-principles').selectedOptions).map((o) => o.value);
+      const next = {
+        ts: entry?.ts || Date.now(),
+        date: document.getElementById('jr-date').value,
+        title: document.getElementById('jr-title').value,
+        kw: kw ? [Number(kw)] : [],
+        principles,
+        situation: document.getElementById('jr-situation').value,
+        action: document.getElementById('jr-action').value,
+        reflection: document.getElementById('jr-reflection').value,
+        note: document.getElementById('jr-situation').value,
+        type: 'manual',
+      };
+      const all = loadJournal();
+      if (isNew) all.unshift(next);
+      else       all[idx] = next;
+      saveJournal(all);
+      editor.hidden = true;
+      renderList();
+    });
+  };
+
+  newBtn.addEventListener('click', () => showEditor(null, null));
+
+  listRoot.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const idx = Number(btn.dataset.idx);
+    const all = loadJournal();
+    if (btn.dataset.act === 'edit') {
+      showEditor(all[idx], idx);
+    } else if (btn.dataset.act === 'delete') {
+      if (confirm('この記録を削除しますか?')) {
+        all.splice(idx, 1);
+        saveJournal(all);
+        renderList();
+      }
+    }
+  });
+
+  expBtn.addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(loadJournal(), null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `eki-journal-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  impInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      if (!Array.isArray(imported)) throw new Error('JSON は配列である必要があります');
+      const merged = [...imported, ...loadJournal()];
+      saveJournal(merged);
+      renderList();
+      alert(`${imported.length} 件をインポートしました`);
+    } catch (err) {
+      alert('インポート失敗: ' + err.message);
+    }
+    e.target.value = '';
+  });
+
+  renderList();
+}
+
 async function main() {
   setupTabs();
   setupYinYang();
@@ -1000,6 +1165,7 @@ async function main() {
     setupLegacy(state.figures, state.disciplines, state.hexagrams, state.worldview);
     setupScience(state.trigrams, state.hexagrams);
     setupDiagnose(state.diagnose, state.hexagrams, state.worldview);
+    setupJournal(state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
   } catch (err) {
     console.error('[eki] データロード失敗', err);
