@@ -14,6 +14,7 @@ const applications = read('data/applications.json');
 const figures     = read('data/figures.json');
 const disciplines = read('data/disciplines.json');
 const deep        = read('data/hexagrams-deep.json');
+const cases       = read('data/cases.json');
 
 const errors = [];
 const log = (msg) => errors.push(msg);
@@ -98,10 +99,23 @@ for (const d of deep) {
   }
 }
 
+// cases -------------------------------------------------------
+const caseIdSet = new Set();
+for (const c of cases) {
+  if (caseIdSet.has(c.id)) log(`case: duplicate id ${c.id}`);
+  caseIdSet.add(c.id);
+  if (!['life', 'business', 'relationships'].includes(c.category)) log(`case ${c.id}: invalid category ${c.category}`);
+  for (const f of ['title', 'situation', 'action', 'outcome', 'reflection']) {
+    if (!c[f] || typeof c[f] !== 'string') log(`case ${c.id}: missing ${f}`);
+  }
+  for (const kw of c.kw || []) if (!hexKwSet.has(kw)) log(`case ${c.id}: kw ${kw} not in hexagrams`);
+  for (const id of c.principles || []) if (!wvIdSet.has(id)) log(`case ${c.id}: principle ${id} not in worldview`);
+}
+
 // -------------------------------------------------------------
 if (errors.length) {
   for (const e of errors) console.error('FAIL:', e);
   process.exit(1);
 }
 
-console.log(`OK: trigrams=${trigrams.length}, hexagrams=${hexagrams.length}, deep=${deep.length}, worldview=${worldview.length}, applications=${applications.length}, figures=${figures.length}, disciplines=${disciplines.length}`);
+console.log(`OK: trigrams=${trigrams.length}, hexagrams=${hexagrams.length}, deep=${deep.length}, worldview=${worldview.length}, applications=${applications.length}, figures=${figures.length}, disciplines=${disciplines.length}, cases=${cases.length}`);
