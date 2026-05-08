@@ -23,6 +23,7 @@
     </div>
     <nav class="tabs" role="tablist" aria-label="セクション切替">
       <button class="tab" role="tab" aria-selected="true"  data-target="overview">概要</button>
+      <button class="tab" role="tab" aria-selected="false" data-target="learn">学習</button>
       <button class="tab" role="tab" aria-selected="false" data-target="yinyang">陰陽</button>
       <button class="tab" role="tab" aria-selected="false" data-target="trigrams">八卦</button>
       <button class="tab" role="tab" aria-selected="false" data-target="hexagrams">六十四卦</button>
@@ -84,6 +85,16 @@
           </p>
         </article>
       </div>
+    </section>
+
+    <section id="learn" class="section" role="tabpanel" aria-label="学習">
+      <h2>学習コース ─ 初級・中級・上級</h2>
+      <p class="lead">
+        易学を「閲覧」ではなく「身につける」ためのカリキュラム。
+        各ステップを読み終えたらマークすると進捗が記録されます (ブラウザ内のみ)。
+        詳細は <a href="docs/curriculum.md">docs/curriculum.md</a> を参照。
+      </p>
+      <div id="learn-courses" class="learn-courses"></div>
     </section>
 
     <section id="yinyang" class="section" role="tabpanel" aria-label="陰陽">
