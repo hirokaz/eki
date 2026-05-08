@@ -57,13 +57,106 @@ function setupTabs() {
   function activate(id) {
     tabs.forEach((t) => t.setAttribute('aria-selected', String(t.dataset.target === id)));
     sections.forEach((s) => s.classList.toggle('is-active', s.id === id));
-    if (location.hash !== `#${id}`) history.replaceState(null, '', `#${id}`);
+    const cur = parseHash();
+    if (cur.section !== id) {
+      history.replaceState(null, '', `#${id}`);
+    }
   }
 
-  // Honor URL hash on load
-  const initial = location.hash.replace('#', '') || 'overview';
-  if (document.getElementById(initial)) activate(initial);
+  // Expose for deep-linking
+  window._ekiActivate = activate;
+
+  // Initial routing handled later (after data loads) via routeFromHash()
+  const initial = parseHash();
+  if (initial.section && document.getElementById(initial.section)) {
+    activate(initial.section);
+  } else {
+    activate('overview');
+  }
 }
+
+// ============================================================
+// Deep linking (#40)
+// ============================================================
+// Hash format:
+//   #<section>                — top of section
+//   #<section>/<itemId>       — section + item (e.g., #hexagrams/11, #worldview/jichu, #cases/B05)
+function parseHash() {
+  const raw = (location.hash || '').replace(/^#/, '');
+  if (!raw) return { section: null, item: null };
+  const [section, ...rest] = raw.split('/');
+  const item = rest.join('/') || null;
+  return { section, item };
+}
+
+function setHash(section, item) {
+  const hash = item ? `#${section}/${item}` : `#${section}`;
+  if (location.hash !== hash) history.replaceState(null, '', hash);
+}
+
+function routeFromHash() {
+  const { section, item } = parseHash();
+  if (!section) return;
+  if (typeof window._ekiActivate === 'function') window._ekiActivate(section);
+  if (!item) return;
+  // Route to specific item per section
+  switch (section) {
+    case 'hexagrams': {
+      const kw = Number(item);
+      const h = state.hexagrams.find((x) => x.kw === kw);
+      if (h) {
+        showHexDetail(state.trigrams, h);
+        document.getElementById('hex-detail')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      break;
+    }
+    case 'worldview': {
+      // Find the card by id, scroll into view
+      const cards = document.querySelectorAll('.wv-card');
+      const idx = (state.worldview || []).findIndex((p) => p.id === item);
+      if (idx >= 0 && cards[idx]) cards[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      break;
+    }
+    case 'cases': {
+      const c = (state.cases || []).find((x) => x.id === item);
+      if (!c) break;
+      // Switch sub-cat to the case's category
+      const tab = document.querySelector(`#case-cat .seg__btn[data-cat="${c.category}"]`);
+      if (tab) tab.click();
+      // Scroll to card
+      setTimeout(() => {
+        const target = Array.from(document.querySelectorAll('#case-cards .case-card .head .id'))
+          .find((el) => el.textContent === c.id)?.closest('.case-card');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 80);
+      break;
+    }
+    case 'applications': {
+      // Filter by category if item matches a category
+      if (['life','business','relationships'].includes(item)) {
+        const tab = document.querySelector(`#app-subtabs .seg__btn[data-cat="${item}"]`);
+        if (tab) tab.click();
+      }
+      break;
+    }
+    case 'legacy': {
+      if (['figures','disciplines'].includes(item)) {
+        const tab = document.querySelector(`#leg-subtabs .seg__btn[data-cat="${item}"]`);
+        if (tab) tab.click();
+      }
+      break;
+    }
+    case 'trigrams': {
+      const id = Number(item);
+      const t = state.trigrams.find((x) => x.id === id);
+      if (t) showTrigDetail(t);
+      break;
+    }
+  }
+}
+
+window.addEventListener('popstate', routeFromHash);
+window.addEventListener('hashchange', routeFromHash);
 
 // ============================================================
 // Yin-Yang section: interactive 6-yao bit toggle
@@ -199,6 +292,7 @@ function showTrigDetail(t) {
   const card = document.getElementById('trig-detail');
   if (!card) return;
   card.hidden = false;
+  setHash('trigrams', String(t.id));
   document.getElementById('trig-detail-symbol').textContent = t.symbol;
   document.getElementById('trig-detail-title').textContent  = `${t.name_zh} ─ ${t.name_en}`;
   document.getElementById('trig-detail-sub').textContent    = `読み: ${t.name_jp} ・ 二進: ${t.binary} (${t.id}) ・ 自然象: ${t.natural}`;
@@ -474,6 +568,7 @@ function showHexDetail(trigrams, h) {
   if (!card || !h) return;
   card.hidden = false;
   hexState.selectedKw = h.kw;
+  setHash('hexagrams', String(h.kw));
   const trigById = Object.fromEntries(trigrams.map((t) => [t.id, t]));
   const upper = trigById[h.upper];
   const lower = trigById[h.lower];
@@ -1584,6 +1679,8 @@ async function main() {
     setupStory(state.sequence, state.hexagrams);
     setupCases(state.cases, state.hexagrams, state.worldview);
     document.dispatchEvent(new CustomEvent('eki:data-loaded', { detail: state }));
+    // Honor deep-link hash now that all renderers have initialized
+    routeFromHash();
   } catch (err) {
     console.error('[eki] データロード失敗', err);
     document.querySelectorAll('.section__placeholder').forEach((el) => {
