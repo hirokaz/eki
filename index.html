@@ -27,10 +27,105 @@
 
   <main class="content">
     <section id="overview" class="section is-active" role="tabpanel" aria-label="概要">
-      <p class="section__placeholder">概要セクション (Issue #3 で実装)</p>
+      <h2>易経を「自然現象を符号化する古代の情報科学」として読む</h2>
+      <p class="lead">
+        易経 (I Ching / 周易) は紀元前の中国で編まれた、自然と人事の変化を 64 個の<strong>状態</strong>として
+        記号化した書物です。占書・哲学書として読まれてきましたが、その記号体系それ自体は
+        2 値の組合せから組み立てられた、極めて構造的なものです。本サイトでは、易経を
+        <em>自然現象の符号化システム</em>として捉え直し、二進法・組合せ論・情報量・状態遷移といった
+        現代の言葉で再記述します。
+      </p>
+
+      <div class="grid grid-2">
+        <article class="card">
+          <h3>核となる構造</h3>
+          <ul class="bullets">
+            <li><strong>陰陽</strong> ─ 2 つの基本状態 (1 ビット)</li>
+            <li><strong>八卦</strong> ─ 3 爻 = 2³ = 8 通り</li>
+            <li><strong>六十四卦</strong> ─ 6 爻 = 2⁶ = 64 通り</li>
+            <li><strong>変爻</strong> ─ 1 ビット反転による状態遷移</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>歴史的な接続</h3>
+          <ul class="bullets">
+            <li>伝説:伏羲が八卦を作り、文王が 64 卦に展開</li>
+            <li>1703 ─ ライプニッツが <em>伏羲 64 卦 = 6 ビット二進数 0–63</em> を指摘</li>
+            <li>1973 ─ M. シェーンベルガーらが 64 卦 ↔ 64 DNA コドンの構造的並行を提示</li>
+            <li>本サイトは「比喩」と「同一視」を厳密に区別する</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>このサイトの読み方</h3>
+          <ol class="bullets">
+            <li><strong>陰陽</strong> ─ 1 ビットから始める</li>
+            <li><strong>八卦</strong> ─ ビットを 3 つ重ねる</li>
+            <li><strong>六十四卦</strong> ─ 6 ビットの全状態を一覧する</li>
+            <li><strong>自然科学</strong> ─ 二進法・情報量・DNA・状態遷移の対応を見る</li>
+          </ol>
+        </article>
+        <article class="card">
+          <h3>本サイトの立場</h3>
+          <p style="margin:0;color:var(--ink-2);">
+            「易経が現代科学を予言した」とは主張しません。逆に、現代科学のフレーム
+            (二進符号、状態空間、情報量) で読むと、易経の記号設計が
+            <strong>離散的な 2 値の組合せ論として極めて整合的</strong>に立ち現れる、
+            という事実だけを正確に示します。
+          </p>
+        </article>
+      </div>
     </section>
+
     <section id="yinyang" class="section" role="tabpanel" aria-label="陰陽">
-      <p class="section__placeholder">陰陽セクション (Issue #3 で実装)</p>
+      <h2>陰陽 ─ 1 ビットから始める</h2>
+      <p class="lead">
+        陰 (yin) と陽 (yang) は易の最小単位 <em>爻 (yao)</em>。
+        現代の言葉で言えば、これは <strong>1 ビット</strong>です。
+        この最小符号を重ねることで、すべての卦が組み立てられます。
+      </p>
+
+      <div class="grid grid-2">
+        <article class="card taiji-card">
+          <img src="assets/taiji.svg" alt="太極図" width="220" height="220" />
+          <p class="muted" style="text-align:center;margin:12px 0 0;">
+            太極図 ─ 陰中に陽あり、陽中に陰あり。<br />
+            2 値は静的な対立ではなく、相互変換と循環の関係にある。
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>爻をクリックして反転</h3>
+          <p style="color:var(--ink-2);">
+            下の 6 爻 (1 卦) は実際の<strong>ビット列</strong>です。
+            クリックで反転し、対応する 6 ビット二進数と KW番号 / 卦象 がリアルタイムで変わります。
+          </p>
+          <div id="yy-yao" class="yao-stack-large" aria-label="可変爻"></div>
+          <div class="yy-readout">
+            <div><span class="muted">二進 (上→下)</span><br /><code id="yy-bin">000000</code></div>
+            <div><span class="muted">十進</span><br /><code id="yy-dec">0</code></div>
+            <div><span class="muted">Fuxi</span><br /><code id="yy-fuxi">0</code></div>
+            <div><span class="muted">王弼 KW#</span><br /><code id="yy-kw">2</code></div>
+            <div><span class="muted">卦象</span><br /><code id="yy-sym" class="hex-sym">䷁</code></div>
+            <div><span class="muted">卦名</span><br /><code id="yy-name">坤</code></div>
+          </div>
+        </article>
+      </div>
+
+      <article class="card" style="margin-top:16px;">
+        <h3>2 の冪 ─ なぜ 64 なのか</h3>
+        <table class="powers-table">
+          <thead>
+            <tr><th>爻数 n</th><th>状態数 2ⁿ</th><th>易での呼称</th><th>意味</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>0</td><td>1</td><td>太極</td><td>未分化の 1</td></tr>
+            <tr><td>1</td><td>2</td><td>両儀 (陰陽)</td><td>1 ビット = 最小の差異</td></tr>
+            <tr><td>2</td><td>4</td><td>四象</td><td>太陽・少陽・少陰・太陰</td></tr>
+            <tr><td>3</td><td>8</td><td>八卦</td><td>自然象 (天地水火雷風山沢)</td></tr>
+            <tr><td>6</td><td>64</td><td>六十四卦</td><td>変化の全状態空間</td></tr>
+          </tbody>
+        </table>
+      </article>
     </section>
     <section id="trigrams" class="section" role="tabpanel" aria-label="八卦">
       <p class="section__placeholder">八卦セクション (Issue #4 で実装)</p>
